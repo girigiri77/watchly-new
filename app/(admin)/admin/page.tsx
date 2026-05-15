@@ -124,12 +124,93 @@ function getMoodEmoji(mood: Mood): string {
   return moodEmojiMap[mood] ?? "🎬"
 }
 
+import { supabase } from "@/lib/supabase"
+
+/**
+ * Maps camelCase MovieCurated back to Supabase snake_case columns
+ */
+function mapToSupabase(movie: MovieCurated) {
+  return {
+    tmdb_id: movie.tmdbId,
+    title: movie.title,
+    moods: movie.moods,
+    ott: movie.ottPlatform,
+    language: movie.language,
+    rating: movie.rating,
+    youtube_trailer: movie.youtubeTrailer,
+    featured: movie.featured,
+    categories: movie.categories,
+    year: movie.year,
+    duration: movie.duration,
+    weekly_ott_release: movie.weeklyOTTRelease,
+    trending: movie.trending,
+    latest_release: movie.latestRelease,
+    hero_featured: movie.heroFeatured,
+    editorial_tagline: movie.editorialTagline,
+    weekly_order: movie.weeklyOrder,
+    trending_order: movie.trendingOrder,
+    homepage_rows: movie.homepageRows,
+    editorial_pick: movie.editorialPick,
+    latest_movie: movie.latestMovie,
+    across_platforms: movie.acrossPlatforms,
+    featured_collection: movie.featuredCollection,
+    poster: movie.poster,
+    backdrop: movie.backdrop,
+    custom_poster: movie.customPoster,
+    custom_backdrop: movie.customBackdrop,
+    description: movie.overview,
+    release_date: movie.releaseDate,
+    genre: movie.genre,
+    gradient_accent: movie.gradientAccent,
+  }
+}
+
+/**
+ * Maps Supabase snake_case columns back to our camelCase MovieCurated interface
+ */
+function mapFromSupabase(row: any): MovieCurated {
+  return {
+    id: row.tmdb_id || 0,
+    tmdbId: row.tmdb_id,
+    title: row.title,
+    moods: row.moods || [],
+    ottPlatform: row.ott,
+    language: row.language,
+    rating: row.rating || 0,
+    youtubeTrailer: row.youtube_trailer,
+    featured: row.featured,
+    categories: row.categories || [],
+    year: row.year,
+    duration: row.duration,
+    weeklyOTTRelease: row.weekly_ott_release,
+    trending: row.trending,
+    latestRelease: row.latest_release,
+    heroFeatured: row.hero_featured,
+    editorialTagline: row.editorial_tagline,
+    weeklyOrder: row.weekly_order,
+    trendingOrder: row.trending_order,
+    homepageRows: row.homepage_rows || [],
+    editorialPick: row.editorial_pick,
+    latestMovie: row.latest_movie,
+    acrossPlatforms: row.across_platforms,
+    featuredCollection: row.featured_collection,
+    poster: row.poster,
+    backdrop: row.backdrop,
+    customPoster: row.custom_poster,
+    customBackdrop: row.custom_backdrop,
+    overview: row.description || row.overview,
+    releaseDate: row.release_date,
+    genre: row.genre || [],
+    gradientAccent: row.gradient_accent,
+  }
+}
+
 export default function AdminPage() {
   const pathname = usePathname()
-  /** Same initial data on server and client to avoid hydration mismatches; localStorage is applied after mount. */
-  const [movies, setMovies] = useState<MovieCurated[]>(seedMovies)
+  const [movies, setMovies] = useState<MovieCurated[]>([])
   const [moodOrders, setMoodOrders] = useState<Record<string, number[]>>({})
-  const [storageHydrated, setStorageHydrated] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState("")
   const [platformFilter, setPlatformFilter] = useState<OTTPlatform | "All">("All")
   const [moodFilter, setMoodFilter] = useState<Mood | "All">("All")
@@ -140,37 +221,49 @@ export default function AdminPage() {
   const [activeSection, setActiveSection] = useState("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  useEffect(() => {
+  const fetchMovies = useCallback(async () => {
+    setLoading(true)
+    setError(null)
     try {
-      const rawMovies = window.localStorage.getItem(ADMIN_MOVIES_STORAGE_KEY)
-      if (rawMovies) {
-        const parsed = JSON.parse(rawMovies) as unknown
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setMovies(parsed as MovieCurated[])
-        }
+      const { data, error: sbError } = await supabase
+        .from('movies')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (sbError) throw sbError
+      setMovies(data?.map(mapFromSupabase) || [])
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const fetchMoodOrders = useCallback(async () => {
+    try {
+      const { data, error: sbError } = await supabase
+        .from('mood_orders')
+        .select('*')
+
+      if (sbError) {
+        console.warn('Mood orders table might not exist yet:', sbError.message)
+        return
       }
 
-      const rawMoodOrders = window.localStorage.getItem(MOOD_ORDERS_STORAGE_KEY)
-      if (rawMoodOrders) {
-        setMoodOrders(JSON.parse(rawMoodOrders))
-      }
-    } catch {
-      /* keep seed */
+      const orders: Record<string, number[]> = {}
+      data?.forEach((row: any) => {
+        orders[row.mood] = row.movie_ids
+      })
+      setMoodOrders(orders)
+    } catch (err) {
+      console.error('Failed to fetch mood orders:', err)
     }
-    setStorageHydrated(true)
   }, [])
 
   useEffect(() => {
-    if (!storageHydrated) return
-    window.localStorage.setItem(ADMIN_MOVIES_STORAGE_KEY, JSON.stringify(movies))
-    notifyMoviesUpdated()
-  }, [movies, storageHydrated])
-
-  useEffect(() => {
-    if (!storageHydrated) return
-    window.localStorage.setItem(MOOD_ORDERS_STORAGE_KEY, JSON.stringify(moodOrders))
-    notifyMoodOrdersUpdated()
-  }, [moodOrders, storageHydrated])
+    fetchMovies()
+    fetchMoodOrders()
+  }, [fetchMovies, fetchMoodOrders])
 
   const filteredMovies = useMemo(() => {
     return movies.filter((movie) => {
@@ -221,52 +314,115 @@ export default function AdminPage() {
     setModalOpen(true)
   }
 
-  const saveMovie = (event: FormEvent) => {
+  const saveMovie = async (event: FormEvent) => {
     event.preventDefault()
-    const nextId = Math.max(0, ...movies.map((movie) => movie.id)) + 1
-    const savedMovie = toMovie(draft, nextId)
+    setLoading(true)
+    try {
+      const savedMovie = toMovie(draft, 0)
+      const payload = mapToSupabase(savedMovie)
+      
+      const { error: sbError } = await supabase
+        .from('movies')
+        .upsert(payload, { onConflict: 'tmdb_id' })
 
-    setMovies((current) => {
-      const exists = current.some((movie) => movie.id === savedMovie.id)
-      return exists ? current.map((movie) => (movie.id === savedMovie.id ? savedMovie : movie)) : [savedMovie, ...current]
-    })
-    setModalOpen(false)
+      if (sbError) throw sbError
+      
+      setModalOpen(false)
+      fetchMovies()
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const updateMovie = (id: number, patch: Partial<MovieCurated>) => {
-    setMovies((current) => current.map((movie) => (movie.id === id ? { ...movie, ...patch } : movie)))
+  const updateMovie = async (id: number, patch: Partial<MovieCurated>) => {
+    try {
+      const movie = movies.find(m => m.id === id)
+      if (!movie) return
+
+      const updated = { ...movie, ...patch }
+      const payload = mapToSupabase(updated)
+
+      const { error: sbError } = await supabase
+        .from('movies')
+        .update(payload)
+        .eq('tmdb_id', id)
+
+      if (sbError) throw sbError
+      fetchMovies()
+    } catch (err: any) {
+      setError(err.message)
+    }
   }
 
-  const deleteMovie = (id: number) => {
-    setMovies((current) => current.filter((movie) => movie.id !== id))
+  const deleteMovie = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this movie?")) return
+    try {
+      const { error: sbError } = await supabase
+        .from('movies')
+        .delete()
+        .eq('tmdb_id', id)
+
+      if (sbError) throw sbError
+      fetchMovies()
+    } catch (err: any) {
+      setError(err.message)
+    }
   }
 
-  const moveWeekly = (id: number, direction: -1 | 1) => {
+  const moveWeekly = async (id: number, direction: -1 | 1) => {
     const ordered = weeklyMovies.map((movie) => movie.id)
     const index = ordered.indexOf(id)
     const target = index + direction
     if (target < 0 || target >= ordered.length) return
     const swapped = [...ordered]
     ;[swapped[index], swapped[target]] = [swapped[target], swapped[index]]
-    setMovies((current) =>
-      current.map((movie) =>
-        swapped.includes(movie.id) ? { ...movie, weeklyOrder: swapped.indexOf(movie.id) + 1 } : movie,
-      ),
+    
+    // Optimistic update
+    const updatedMovies = movies.map((movie) =>
+      swapped.includes(movie.id) ? { ...movie, weeklyOrder: swapped.indexOf(movie.id) + 1 } : movie
     )
+    setMovies(updatedMovies)
+
+    try {
+      const updates = updatedMovies
+        .filter(m => swapped.includes(m.id))
+        .map(m => mapToSupabase(m))
+      
+      const { error: sbError } = await supabase.from('movies').upsert(updates)
+      if (sbError) throw sbError
+    } catch (err: any) {
+      setError("Failed to sync weekly order: " + err.message)
+      fetchMovies() // rollback
+    }
   }
 
-  const moveTrending = (id: number, direction: -1 | 1) => {
+  const moveTrending = async (id: number, direction: -1 | 1) => {
     const ordered = trendingMovies.map((movie) => movie.id)
     const index = ordered.indexOf(id)
     const target = index + direction
     if (target < 0 || target >= ordered.length) return
     const swapped = [...ordered]
     ;[swapped[index], swapped[target]] = [swapped[target], swapped[index]]
-    setMovies((current) =>
-      current.map((movie) =>
-        swapped.includes(movie.id) ? { ...movie, trendingOrder: swapped.indexOf(movie.id) + 1 } : movie,
-      ),
+    
+    // Optimistic update
+    const updatedMovies = movies.map((movie) =>
+      swapped.includes(movie.id) ? { ...movie, trendingOrder: swapped.indexOf(movie.id) + 1 } : movie
     )
+    setMovies(updatedMovies)
+
+    try {
+      const updates = updatedMovies
+        .filter(m => swapped.includes(m.id))
+        .map(m => mapToSupabase(m))
+      
+      const { error: sbError } = await supabase.from('movies').upsert(updates)
+      if (sbError) throw sbError
+    } catch (err: any) {
+      setError("Failed to sync trending order: " + err.message)
+      fetchMovies() // rollback
+    }
   }
 
   async function signOut() {
@@ -275,8 +431,22 @@ export default function AdminPage() {
     window.location.href = "/admin/login"
   }
 
+  if (loading && movies.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF7]">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#7C3AED] border-t-transparent" />
+      </div>
+    )
+  }
+
   return (
     <main className="relative flex min-h-screen bg-[#FAFAF7] text-[#111827]">
+      {error && (
+        <div className="fixed top-4 left-1/2 z-[100] -translate-x-1/2 rounded-xl bg-red-500 px-6 py-3 text-sm font-bold text-white shadow-lg animate-in fade-in slide-in-from-top-4">
+          Error: {error}
+          <button onClick={() => setError(null)} className="ml-4 opacity-70 hover:opacity-100">✕</button>
+        </div>
+      )}
       {sidebarOpen && (
         <button suppressHydrationWarning
           type="button"
@@ -845,12 +1015,28 @@ export default function AdminPage() {
         mood={selectedMoodForOrder}
         movies={movies}
         moodOrders={moodOrders}
-        onOrderChange={(newOrder) => {
+        onOrderChange={async (newOrder) => {
           if (!selectedMoodForOrder) return
+          
+          // Optimistic update
           setMoodOrders((prev) => ({
             ...prev,
             [selectedMoodForOrder]: newOrder,
           }))
+
+          try {
+            const { error: sbError } = await supabase
+              .from('mood_orders')
+              .upsert({ 
+                mood: selectedMoodForOrder, 
+                movie_ids: newOrder 
+              }, { onConflict: 'mood' })
+            
+            if (sbError) throw sbError
+          } catch (err: any) {
+            console.error('Failed to save mood orders:', err)
+            setError("Failed to save mood orders. Make sure the 'mood_orders' table exists.")
+          }
         }}
       />
     </main>

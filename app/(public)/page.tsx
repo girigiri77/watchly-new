@@ -19,8 +19,32 @@ import MoodCinemaSection from '@/components/MoodCinemaSection'
 const tickerItems = ["Netflix", "Prime Video", "Hotstar", "Telugu Cinema", "Tamil Stories", "Bollywood", "Malayalam Gems", "Weekly Releases", "Mood Discovery", "Zee5", "SonyLIV"]
 
 export default function HomePage() {
-  const { movies: allMovies } = useSyncedMoviesFromAdmin()
+  const { movies: allMovies, loading, error } = useSyncedMoviesFromAdmin()
   const { picks: teluguPicks, loading: teluguPicksLoading } = usePublicTeluguPicks()
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF7]">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#7C3AED] border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAFAF7] p-8 text-center">
+        <div className="mb-4 text-4xl">⚠️</div>
+        <h2 className="mb-2 text-2xl font-bold text-[#111827]">Connection Error</h2>
+        <p className="text-[#4B5563]">{error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-6 rounded-full bg-[#7C3AED] px-8 py-3 font-semibold text-white transition-all hover:bg-[#6D28D9]"
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
 
   // Admin-controlled sections - use flags from admin panel
   const weeklyReleases = allMovies.filter(m => m.weeklyOTTRelease).sort((a, b) => (a.weeklyOrder || 999) - (b.weeklyOrder || 999)).slice(0, 8)

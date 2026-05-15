@@ -1,85 +1,106 @@
 "use client"
 
 import { movies as seedMovies } from "@/data/movies"
-import {
-  ADMIN_MOVIES_STORAGE_KEY,
-  MOOD_ORDERS_STORAGE_KEY,
-  MOOD_ORDERS_UPDATED_EVENT,
-  MOVIES_UPDATED_EVENT,
-} from "@/lib/admin-movies-storage"
+import { supabase } from "@/lib/supabase"
 import type { MovieCurated } from "@/types/movie"
 import { useCallback, useEffect, useState } from "react"
-
-function parseStoredMovies(raw: string | null): MovieCurated[] | null {
-  if (!raw) return null
-  try {
-    const parsed = JSON.parse(raw) as unknown
-    if (!Array.isArray(parsed) || parsed.length === 0) return null
-    return parsed as MovieCurated[]
-  } catch {
-    return null
-  }
-}
-
-function parseStoredOrders(raw: string | null): Record<string, number[]> {
-  if (!raw) return {}
-  try {
-    return JSON.parse(raw) as Record<string, number[]>
-  } catch {
-    return {}
-  }
-}
 
 export type SyncedMoviesFromAdmin = {
   movies: MovieCurated[]
   moodOrders: Record<string, number[]>
-  /**
-   * `true` after the first client-side read of `localStorage` (or immediately after each reload from storage events).
-   * Stays `false` during SSR and the first client paint so lists match server HTML and avoid hydration mismatches.
-   */
   storageHydrated: boolean
+  loading: boolean
+  error: string | null
 }
 
 /**
- * Movie list from `localStorage` when the admin panel has saved data, otherwise seed data from `data/movies`.
- * Subscribes to cross-tab `storage` and same-tab updates from the admin panel.
+ * Maps Supabase snake_case columns back to our camelCase MovieCurated interface
  */
+function mapFromSupabase(row: any): MovieCurated {
+  return {
+    id: row.tmdb_id || 0, // using tmdb_id as the unique numeric ID if available
+    tmdbId: row.tmdb_id,
+    title: row.title,
+    moods: row.moods || [],
+    ottPlatform: row.ott,
+    language: row.language,
+    rating: row.rating || 0,
+    youtubeTrailer: row.youtube_trailer,
+    featured: row.featured,
+    categories: row.categories || [],
+    year: row.year,
+    duration: row.duration,
+    weeklyOTTRelease: row.weekly_ott_release,
+    trending: row.trending,
+    latestRelease: row.latest_release,
+    heroFeatured: row.hero_featured,
+    editorialTagline: row.editorial_tagline,
+    weeklyOrder: row.weekly_order,
+    trendingOrder: row.trending_order,
+    homepageRows: row.homepage_rows || [],
+    editorialPick: row.editorial_pick,
+    latestMovie: row.latest_movie,
+    acrossPlatforms: row.across_platforms,
+    featuredCollection: row.featured_collection,
+    poster: row.poster,
+    backdrop: row.backdrop,
+    customPoster: row.custom_poster,
+    customBackdrop: row.custom_backdrop,
+    overview: row.description || row.overview,
+    releaseDate: row.release_date,
+    genre: row.genre || [],
+    gradientAccent: row.gradient_accent,
+  }
+}
+
 export function useSyncedMoviesFromAdmin(): SyncedMoviesFromAdmin {
   const [list, setList] = useState<MovieCurated[]>(() => seedMovies)
   const [moodOrders, setMoodOrders] = useState<Record<string, number[]>>({})
   const [storageHydrated, setStorageHydrated] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const reload = useCallback(() => {
-    if (typeof window === "undefined") return
-    const fromStore = parseStoredMovies(window.localStorage.getItem(ADMIN_MOVIES_STORAGE_KEY))
-    setList(fromStore ?? seedMovies)
-    
-    const orders = parseStoredOrders(window.localStorage.getItem(MOOD_ORDERS_STORAGE_KEY))
-    setMoodOrders(orders)
-    
-    setStorageHydrated(true)
+  const fetchMovies = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const { data, error: sbError } = await supabase
+        .from('movies')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (sbError) {
+        console.error('Supabase fetch error:', sbError)
+        setError(sbError.message)
+        return
+      }
+
+      if (data && data.length > 0) {
+        setList(data.map(mapFromSupabase))
+      }
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+      setStorageHydrated(true)
+    }
   }, [])
 
   useEffect(() => {
-    reload()
-    const onStorage = (event: StorageEvent) => {
-      if (
-        event.key === ADMIN_MOVIES_STORAGE_KEY || 
-        event.key === MOOD_ORDERS_STORAGE_KEY || 
-        event.key === null
-      ) {
-        reload()
-      }
-    }
-    window.addEventListener("storage", onStorage)
-    window.addEventListener(MOVIES_UPDATED_EVENT, reload)
-    window.addEventListener(MOOD_ORDERS_UPDATED_EVENT, reload)
-    return () => {
-      window.removeEventListener("storage", onStorage)
-      window.removeEventListener(MOVIES_UPDATED_EVENT, reload)
-      window.removeEventListener(MOOD_ORDERS_UPDATED_EVENT, reload)
-    }
-  }, [reload])
+    fetchMovies()
 
-  return { movies: list, moodOrders, storageHydrated }
+    // Real-time subscription to 'movies' table
+    const channel = supabase
+      .channel('movies_changes')
+      .on('postgres_changes', { event: '*', table: 'movies' }, () => {
+        fetchMovies()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [fetchMovies])
+
+  return { movies: list, moodOrders, storageHydrated, loading, error }
 }
