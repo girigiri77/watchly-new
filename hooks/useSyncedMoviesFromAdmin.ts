@@ -92,9 +92,17 @@ export function useSyncedMoviesFromAdmin(): SyncedMoviesFromAdmin {
     // Real-time subscription to 'movies' table
     const channel = supabase
       .channel('movies_changes')
-      .on('postgres_changes', { event: '*', table: 'movies' }, () => {
-        fetchMovies()
-      })
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'movies',
+        },
+        () => {
+          fetchMovies()
+        }
+      )
       .subscribe()
 
     return () => {
