@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { FormEvent, ReactElement, useEffect, useMemo, useState } from "react"
+import { FormEvent, ReactElement, useCallback, useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   ChevronDown,
