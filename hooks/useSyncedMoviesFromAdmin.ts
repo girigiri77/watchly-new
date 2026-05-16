@@ -7,55 +7,42 @@ import { useCallback, useEffect, useState } from "react"
 
 export type SyncedMoviesFromAdmin = {
   movies: MovieCurated[]
-  moodOrders: Record<string, number[]>
   storageHydrated: boolean
   loading: boolean
   error: string | null
 }
+
+
 
 /**
  * Maps Supabase snake_case columns back to our camelCase MovieCurated interface
  */
 function mapFromSupabase(row: any): MovieCurated {
   return {
-    id: row.tmdb_id || 0, // using tmdb_id as the unique numeric ID if available
-    tmdbId: row.tmdb_id,
+    uuid: row.uuid,
+    created_at: row.created_at,
     title: row.title,
-    moods: row.moods || [],
-    ottPlatform: row.ott,
+    description: row.description || "",
+    poster: row.poster || "",
+    backdrop: row.backdrop || "",
+    ott: row.ott,
     language: row.language,
-    rating: row.rating || 0,
-    youtubeTrailer: row.youtube_trailer,
-    featured: row.featured,
-    categories: row.categories || [],
-    year: row.year,
-    duration: row.duration,
-    weeklyOTTRelease: row.weekly_ott_release,
-    trending: row.trending,
-    latestRelease: row.latest_release,
-    heroFeatured: row.hero_featured,
-    editorialTagline: row.editorial_tagline,
-    weeklyOrder: row.weekly_order,
-    trendingOrder: row.trending_order,
-    homepageRows: row.homepage_rows || [],
-    editorialPick: row.editorial_pick,
-    latestMovie: row.latest_movie,
-    acrossPlatforms: row.across_platforms,
-    featuredCollection: row.featured_collection,
-    poster: row.poster,
-    backdrop: row.backdrop,
-    customPoster: row.custom_poster,
-    customBackdrop: row.custom_backdrop,
-    overview: row.description || row.overview,
-    releaseDate: row.release_date,
+    release_date: row.release_date || "",
+    moods: row.moods || [],
+    rating: Number(row.rating || 0),
+
+    trailer: row.trailer || "",
     genre: row.genre || [],
-    gradientAccent: row.gradient_accent,
+    trending: row.trending || false,
+    weekly: row.weekly || false,
+    featured: row.featured || false,
+    mood_order: row.mood_order || 0,
   }
 }
 
 export function useSyncedMoviesFromAdmin(): SyncedMoviesFromAdmin {
   const [list, setList] = useState<MovieCurated[]>(() => seedMovies)
-  const [moodOrders, setMoodOrders] = useState<Record<string, number[]>>({})
+
   const [storageHydrated, setStorageHydrated] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -70,14 +57,13 @@ export function useSyncedMoviesFromAdmin(): SyncedMoviesFromAdmin {
         .order('created_at', { ascending: false })
 
       if (sbError) {
-        console.error('Supabase fetch error:', sbError)
+        console.error('Supabase Full Error:', JSON.stringify(sbError, null, 2))
         setError(sbError.message)
         return
       }
 
-      if (data && data.length > 0) {
-        setList(data.map(mapFromSupabase))
-      }
+      setList(data?.map(mapFromSupabase) || [])
+
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -89,9 +75,12 @@ export function useSyncedMoviesFromAdmin(): SyncedMoviesFromAdmin {
   useEffect(() => {
     fetchMovies()
 
-    // Real-time subscription to 'movies' table
-    const channel = supabase
-      .channel('movies_changes')
+    if (!supabase) return
+
+    const client = supabase
+    const channelId = `movies_changes_${Date.now()}`
+    const channel = client
+      .channel(channelId)
       .on(
         'postgres_changes',
         {
@@ -106,9 +95,12 @@ export function useSyncedMoviesFromAdmin(): SyncedMoviesFromAdmin {
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      client.removeChannel(channel)
     }
-  }, [fetchMovies])
+  }, [])
 
-  return { movies: list, moodOrders, storageHydrated, loading, error }
+
+
+  return { movies: list, storageHydrated, loading, error }
+
 }

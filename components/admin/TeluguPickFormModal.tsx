@@ -25,7 +25,8 @@ export const TELUGU_PICK_GENRES = [
   "Mystery",
 ] as const
 
-export type LibraryMovieOption = { id: number; title: string }
+export type LibraryMovieOption = { uuid: string; title: string }
+
 
 type FormState = {
   title: string
@@ -75,7 +76,8 @@ function pickToForm(p: TeluguPick): FormState {
     active: p.active,
     displayOrder: String(p.displayOrder),
     trailerUrl: p.trailerUrl,
-    libraryMovieId: p.libraryMovieId ? String(p.libraryMovieId) : "",
+    libraryMovieId: p.libraryMovieId ? p.libraryMovieId : "",
+
     gradientAccent: p.gradientAccent,
     releaseDate: p.releaseDate,
   }
@@ -172,8 +174,8 @@ export default function TeluguPickFormModal({
     setSaving(true)
     setError(null)
     try {
-      const libraryMovieId =
-        form.libraryMovieId.trim() === "" ? undefined : Number(form.libraryMovieId.trim())
+      const libraryMovieId = form.libraryMovieId.trim() || null
+
 
       const payload = {
         title: form.title.trim(),
@@ -182,7 +184,8 @@ export default function TeluguPickFormModal({
         language: form.language,
         year: Number(form.year),
         duration: form.duration.trim(),
-        rating: Number(form.rating),
+        rating: Number(form.rating || 0),
+
         posterUrl: form.posterUrl.trim(),
         backdropUrl: form.backdropUrl.trim(),
         customPoster: form.customPoster.trim(),
@@ -196,7 +199,8 @@ export default function TeluguPickFormModal({
         active: form.active,
         displayOrder: Number(form.displayOrder),
         trailerUrl: form.trailerUrl.trim(),
-        libraryMovieId: libraryMovieId !== undefined && Number.isFinite(libraryMovieId) && libraryMovieId > 0 ? libraryMovieId : null,
+        libraryMovieId: libraryMovieId,
+
         gradientAccent: form.gradientAccent.trim(),
         releaseDate: form.releaseDate.trim(),
       }
@@ -391,9 +395,10 @@ export default function TeluguPickFormModal({
             >
               <option value="">None</option>
               {libraryMovies.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.title} (#{m.id})
+                <option key={m.uuid} value={m.uuid}>
+                  {m.title}
                 </option>
+
               ))}
             </select>
           </Field>

@@ -28,17 +28,20 @@ function ReleasesContent() {
   const thisWeek = useMemo(
     () =>
       movies
-        .filter((m) => m.weeklyOTTRelease)
-        .sort((a, b) => (a.weeklyOrder ?? 999) - (b.weeklyOrder ?? 999)),
+        .filter((m) => m.weekly)
+        .sort((a, b) => (a.mood_order ?? 999) - (b.mood_order ?? 999)),
     [movies],
   )
 
-  const newReleases = useMemo(() => movies.filter((m) => m.latestMovie), [movies])
+
+  const newReleases = useMemo(() => movies.filter((m) => m.featured), [movies])
+
 
   const allSorted = useMemo(
-    () => [...movies].sort((a, b) => b.year - a.year || a.title.localeCompare(b.title)),
+    () => [...movies].sort((a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime() || a.title.localeCompare(b.title)),
     [movies],
   )
+
 
   const list: MovieCurated[] = tab === "week" ? thisWeek : tab === "latest" ? newReleases : allSorted
 
@@ -118,7 +121,7 @@ function ReleasesContent() {
             style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
           >
             {list.map((movie, i) => (
-              <MovieCard key={movie.id} movie={movie} index={i} />
+              <MovieCard key={movie.uuid} movie={movie} index={i} />
             ))}
           </div>
         )}

@@ -47,9 +47,10 @@ export default function HomePage() {
   }
 
   // Admin-controlled sections - use flags from admin panel
-  const weeklyReleases = allMovies.filter(m => m.weeklyOTTRelease).sort((a, b) => (a.weeklyOrder || 999) - (b.weeklyOrder || 999)).slice(0, 8)
-  const latestMovies = allMovies.filter(m => m.latestMovie).slice(0, 8)
+  const weeklyReleases = allMovies.filter(m => m.weekly).sort((a, b) => (a.mood_order || 999) - (b.mood_order || 999)).slice(0, 8)
+  const latestMovies = allMovies.filter(m => m.featured).slice(0, 8)
   const trendingMovies = getHomepageTrending(allMovies, TRENDING_CONFIG.HOME_LIMIT)
+
 
   return (
     <main style={{ background: '#FAFAF7', minHeight: '100vh', position: 'relative' }}>
@@ -101,7 +102,7 @@ export default function HomePage() {
           gap: 32,
         }}>
           {weeklyReleases.map((movie, i) => (
-            <MovieCard key={movie.id} movie={movie} index={i} />
+            <MovieCard key={movie.uuid} movie={movie} index={i} />
           ))}
         </div>
 
@@ -194,7 +195,7 @@ export default function HomePage() {
           gap: 32,
         }}>
           {latestMovies.map((movie, i) => (
-            <MovieCard key={movie.id} movie={movie} index={i} />
+            <MovieCard key={movie.uuid} movie={movie} index={i} />
           ))}
         </div>
       </section>
@@ -292,7 +293,7 @@ export default function HomePage() {
           gap: 32,
         }}>
           {trendingMovies.map((movie, i) => (
-            <MovieCard key={movie.id} movie={movie} index={i} />
+            <MovieCard key={movie.uuid} movie={movie} index={i} />
           ))}
           {trendingMovies.length === 0 && (
             <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 0', color: '#6B7280' }}>

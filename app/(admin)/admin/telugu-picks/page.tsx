@@ -46,7 +46,8 @@ export default function TeluguPicksAdminPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<TeluguPick | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [libraryMovies, setLibraryMovies] = useState<{ id: number; title: string }[]>([])
+  const [libraryMovies, setLibraryMovies] = useState<{ uuid: string; title: string }[]>([])
+
   const [dragId, setDragId] = useState<number | null>(null)
 
   const showToast = useCallback((message: string) => {
@@ -77,8 +78,9 @@ export default function TeluguPicksAdminPage() {
     void loadPicks()
     setLibraryMovies(
       parseMoviesFromStorage()
-        .map((m) => ({ id: m.id, title: m.title }))
+        .map((m) => ({ uuid: m.uuid, title: m.title }))
         .sort((a, b) => a.title.localeCompare(b.title)),
+
     )
   }, [loadPicks])
 
@@ -428,7 +430,8 @@ export default function TeluguPicksAdminPage() {
                             </td>
                             <td className="px-3 py-3 align-middle">{pick.ott}</td>
                             <td className="px-3 py-3 align-middle">{pick.year}</td>
-                            <td className="px-3 py-3 align-middle">{pick.rating.toFixed(1)}</td>
+                            <td className="px-3 py-3 align-middle">{Number(pick.rating || 0).toFixed(1)}</td>
+
                             <td className="px-3 py-3 align-middle">{pick.displayOrder}</td>
                             <td className="px-3 py-3 align-middle">
                               <button

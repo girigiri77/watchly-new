@@ -34,10 +34,10 @@ function MovieTitle({ title }: { title: string }) {
 
 export default function MoviePage() {
   const params = useParams()
-  const rawId = params?.id
-  const id = typeof rawId === "string" ? Number(rawId) : Number.NaN
+  const uuid = params?.id as string
   const { movies, storageHydrated } = useSyncedMoviesFromAdmin()
-  const movie = Number.isFinite(id) ? movies.find((item) => item.id === id) : undefined
+  const movie = movies.find((item) => item.uuid === uuid)
+
 
   const posterUrl = useMemo(() => (movie ? getResolvedPosterUrl(movie) : "/placeholder.jpg"), [movie])
   const backdropUrl = useMemo(() => (movie ? getResolvedBackdropUrl(movie) : undefined), [movie])
@@ -46,11 +46,12 @@ export default function MoviePage() {
   const [posterFailed, setPosterFailed] = useState(false)
 
   const platform = movie
-    ? platformStyle[movie.ottPlatform] ?? {
-        label: movie.ottPlatform.toUpperCase().slice(0, 8),
+    ? platformStyle[movie.ott] ?? {
+        label: movie.ott.toUpperCase().slice(0, 8),
         gradient: "linear-gradient(135deg, #52525B 0%, #27272A 100%)",
       }
     : null
+
 
   if (!storageHydrated) {
     return (
@@ -64,7 +65,8 @@ export default function MoviePage() {
 
   return (
     <main
-      key={movie.id}
+      key={movie.uuid}
+
       id="movie-detail"
       className="relative w-full overflow-hidden bg-[#070707] text-white [-webkit-font-smoothing:antialiased]"
     >
@@ -92,13 +94,11 @@ export default function MoviePage() {
               ) : (
                 <div
                   className="flex h-full w-full flex-col items-center justify-center px-8 text-center"
-                  style={{
-                    background: `linear-gradient(160deg, ${movie.gradientAccent}55, #111111 85%)`,
-                  }}
                 >
                   <span className="mb-4 text-5xl">🎬</span>
                   <span className="font-playfair text-2xl font-black text-white">{movie.title}</span>
                 </div>
+
               )}
             </div>
 
@@ -112,8 +112,9 @@ export default function MoviePage() {
             </div>
             <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full border border-white/20 bg-black/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
               <Star size={14} fill="#F5C542" stroke="none" />
-              {movie.rating.toFixed(1)}
+              {Number(movie.rating || 0).toFixed(1)}
             </div>
+
           </div>
         </div>
 
@@ -123,26 +124,25 @@ export default function MoviePage() {
             <MovieTitle title={movie.title} />
           </h1>
 
-          {movie.editorialTagline ? (
-            <p className="max-w-2xl text-base font-medium uppercase tracking-[0.3em] text-[#A1A1AA] sm:text-sm">
-              {movie.editorialTagline}
-            </p>
-          ) : null}
+          {/* Tagline removed from schema */}
+
 
           <p className="max-w-3xl text-balance text-xl leading-relaxed text-zinc-300">
-            {movie.overview}
+            {movie.description}
           </p>
+
 
           {/* Metadata row */}
           <div className="mt-2 flex flex-wrap items-center justify-center gap-3 text-xs font-semibold tracking-[0.28em] text-[#A1A1AA] sm:text-sm">
             <span className="uppercase">
-              {movie.language} • {movie.year} • {movie.duration}
+              {movie.language} • {new Date(movie.release_date).getFullYear()}
             </span>
             <span className="hidden sm:inline text-zinc-700">•</span>
             <span className="uppercase">
-              {movie.ottPlatform}
+              {movie.ott}
             </span>
           </div>
+
 
           {/* Mood tags */}
           <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -159,7 +159,8 @@ export default function MoviePage() {
           {/* CTAs */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <a
-              href={movie.youtubeTrailer}
+              href={movie.trailer}
+
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#7C3AED] via-[#7C3AED] to-[#6D28D9] px-8 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white shadow-[0_18px_60px_rgba(124,58,237,0.6)] transition hover:brightness-110 hover:shadow-[0_22px_70px_rgba(124,58,237,0.85)]"
@@ -171,7 +172,7 @@ export default function MoviePage() {
               type="button"
               className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white shadow-[0_12px_45px_rgba(0,0,0,0.7)] transition hover:border-white/40 hover:bg-white/10"
             >
-              Watch on {platform?.label ?? movie.ottPlatform.toUpperCase()}
+              Watch on {platform?.label ?? movie.ott.toUpperCase()}
             </button>
           </div>
 

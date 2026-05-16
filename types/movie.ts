@@ -37,41 +37,22 @@ export type OTTPlatform = (typeof OTT_PLATFORMS)[number]
 export type MovieLanguage = (typeof LANGUAGES)[number]
 
 export interface MovieCurated {
-  id: number
-  tmdbId: number
+  uuid: string
+  created_at?: string
   title: string
-  moods: Mood[]
-  ottPlatform: OTTPlatform
-  language: MovieLanguage
-  rating: number
-  youtubeTrailer: string
-  featured: boolean
-  categories: string[]
-  year: number
-  duration: string
-  weeklyOTTRelease: boolean
-  trending: boolean
-  latestRelease: boolean
-  heroFeatured: boolean
-  editorialTagline?: string
-  weeklyOrder?: number
-  trendingOrder?: number
-  homepageRows?: string[]
-  editorialPick?: boolean
-
-  // Admin-controlled homepage section flags
-  latestMovie: boolean
-  acrossPlatforms: boolean
-  featuredCollection: boolean
-
-  // Poster / backdrop URLs (remote or manual). See `lib/movie-images.ts` for display priority.
+  description: string
   poster: string
-  backdrop?: string
-  /** Local or CDN path from admin upload; wins over `poster` (e.g. `/uploads/hi-nanna-poster.jpg`). */
-  customPoster?: string
-  customBackdrop?: string
-  overview: string
-  releaseDate: string
+  backdrop: string
+  ott: OTTPlatform
+  language: MovieLanguage
+  release_date: string
+  moods: Mood[]
+  rating: number | string
+  trailer: string
   genre: string[]
-  gradientAccent: string
+  trending: boolean
+  weekly: boolean
+  featured: boolean
+  mood_order: number
 }
+

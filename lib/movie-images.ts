@@ -15,9 +15,10 @@ export function getSafeImageUrl(url: string | null | undefined, fallback = FALLB
 /**
  * Display priority for Library Movies: `customPoster` → TMDB `poster` → fallback.
  */
-export function getResolvedPosterUrl(movie: Pick<MovieCurated, "customPoster" | "poster">): string {
-  return getSafeImageUrl(movie.customPoster || movie.poster)
+export function getResolvedPosterUrl(movie: Pick<MovieCurated, "poster">): string {
+  return getSafeImageUrl(movie.poster)
 }
+
 
 /**
  * Display priority for Telugu Picks: `customPoster` → `posterUrl` → fallback.
@@ -27,9 +28,8 @@ export function getTeluguPickPoster(pick: Pick<TeluguPick, "customPoster" | "pos
 }
 
 /** `customBackdrop` → TMDB `backdrop` → `undefined` (caller may omit image). */
-export function getResolvedBackdropUrl(movie: Pick<MovieCurated, "customBackdrop" | "backdrop">): string | undefined {
-  const custom = movie.customBackdrop?.trim()
-  if (custom) return custom
+export function getResolvedBackdropUrl(movie: Pick<MovieCurated, "backdrop">): string | undefined {
   const tmdb = movie.backdrop?.trim()
   return tmdb || undefined
 }
+

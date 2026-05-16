@@ -32,22 +32,23 @@ function getYouTubeEmbedUrl(url: string) {
 export default function MovieCard({ movie }: MovieCardProps) {
   const [imageFailed, setImageFailed] = useState(false)
   const [trailerOpen, setTrailerOpen] = useState(false)
-  const platform = platformStyle[movie.ottPlatform] ?? {
+  const platform = platformStyle[movie.ott] ?? {
     bg: "#52525B",
-    label: movie.ottPlatform,
+    label: movie.ott,
     gradient: "linear-gradient(135deg, #52525B 0%, #27272A 100%)",
   }
-  const embedUrl = useMemo(() => getYouTubeEmbedUrl(movie.youtubeTrailer), [movie.youtubeTrailer])
+  const embedUrl = useMemo(() => getYouTubeEmbedUrl(movie.trailer), [movie.trailer])
   const posterUrl = useMemo(() => {
     const url = getResolvedPosterUrl(movie)
     return url === "" ? "/placeholder.jpg" : url
-  }, [movie.customPoster, movie.poster])
+  }, [movie.poster])
+
 
   return (
     <>
       <TiltCard intensity={10} className="block h-full w-full">
         <article className="h-full group overflow-hidden rounded-[20px] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.22)] transition-transform duration-300 ease-out hover:-translate-y-2">
-          <Link href={`/movie/${movie.id}`} className="block">
+          <Link href={`/movie/${movie.uuid}`} className="block">
           <div className="relative aspect-[2/3] overflow-hidden bg-[#191919]">
             {!imageFailed ? (
               <img
@@ -62,14 +63,12 @@ export default function MovieCard({ movie }: MovieCardProps) {
             ) : (
               <div
                 className="flex h-full flex-col items-center justify-center px-6 text-center"
-                style={{
-                  background: `linear-gradient(160deg, ${movie.gradientAccent}33, #0B0B0F 75%)`,
-                }}
               >
                 <div className="mb-5 text-5xl">🎬</div>
                 <div className="font-playfair text-xl font-black text-white">{movie.title}</div>
                 <div className="mt-3 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">{movie.language}</div>
               </div>
+
             )}
 
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
@@ -83,29 +82,28 @@ export default function MovieCard({ movie }: MovieCardProps) {
 
             <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
               <Star size={12} fill="#F5C542" stroke="none" />
-              {movie.rating.toFixed(1)}
+              {Number(movie.rating || 0).toFixed(1)}
             </div>
 
+
             <div className="absolute bottom-4 left-4 right-4">
-              {movie.editorialTagline && (
-                <p className="line-clamp-2 text-sm font-medium leading-5 text-white/85">{movie.editorialTagline}</p>
-              )}
+              <p className="line-clamp-2 text-sm font-medium leading-5 text-white/85">{movie.description}</p>
             </div>
+
           </div>
         </Link>
 
         <div className="space-y-4 p-4">
           <div>
-            <Link href={`/movie/${movie.id}`} className="font-playfair text-xl font-black leading-tight text-white transition group-hover:text-[#C4B5FD]">
+            <Link href={`/movie/${movie.uuid}`} className="font-playfair text-xl font-black leading-tight text-white transition group-hover:text-[#C4B5FD]">
               {movie.title}
             </Link>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/45">
               <span>{movie.language}</span>
               <span>•</span>
-              <span>{movie.year}</span>
-              <span>•</span>
-              <span>{movie.duration}</span>
+              <span>{new Date(movie.release_date).getFullYear()}</span>
             </div>
+
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -119,8 +117,9 @@ export default function MovieCard({ movie }: MovieCardProps) {
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-white/45">
               <Calendar size={13} />
-              {movie.releaseDate}
+              {movie.release_date}
             </div>
+
             <button
               type="button"
               onClick={() => setTrailerOpen(true)}
@@ -166,7 +165,8 @@ export default function MovieCard({ movie }: MovieCardProps) {
                 <p className="max-w-md text-white/70">This trailer URL cannot be embedded, but the manual link can open directly.</p>
                 <button
                   type="button"
-                  onClick={() => window.open(movie.youtubeTrailer, "_blank", "noopener,noreferrer")}
+                  onClick={() => window.open(movie.trailer, "_blank", "noopener,noreferrer")}
+
                   suppressHydrationWarning
                   className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-black"
                 >

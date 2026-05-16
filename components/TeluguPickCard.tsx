@@ -85,8 +85,9 @@ export default function TeluguPickCard({ pick }: { pick: TeluguPick }) {
 
             <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
               <Star size={12} fill="#F5C542" stroke="none" />
-              {pick.rating.toFixed(1)}
+              {Number(pick.rating || 0).toFixed(1)}
             </div>
+
 
             <div className="absolute bottom-4 left-4 right-4">
               {pick.description ? (

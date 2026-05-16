@@ -33,8 +33,9 @@ export default function TrendingPage() {
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 40 }}>
           {trendingMovies.map((movie, i) => (
-            <MovieCard key={movie.id} movie={movie} index={i} />
+            <MovieCard key={movie.uuid} movie={movie} index={i} />
           ))}
+
           {trendingMovies.length === 0 && (
             <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px 0', color: '#6B7280' }}>
               <div style={{ fontSize: 48, marginBottom: 24 }}>🎬</div>

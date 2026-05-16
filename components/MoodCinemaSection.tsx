@@ -7,14 +7,16 @@ import TiltCard from '@/components/effects/TiltCard'
 import { getMoviesByMoodOrdered } from '@/lib/mood-utils'
 
 export default function MoodCinemaSection({ title = "Mood Cinema", subtitle = "Cinema for Every Emotion" }) {
-  const { movies: allMovies, moodOrders } = useSyncedMoviesFromAdmin()
+  const { movies: allMovies } = useSyncedMoviesFromAdmin()
+
   const [selectedMood, setSelectedMood] = useState<string | null>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
 
   const moodRecommendations = useMemo(() => {
     if (!selectedMood) return []
-    return getMoviesByMoodOrdered(allMovies, moodOrders, selectedMood)
-  }, [selectedMood, allMovies, moodOrders])
+    return getMoviesByMoodOrdered(allMovies, selectedMood)
+  }, [selectedMood, allMovies])
+
 
   const handleMoodSelect = (mood: string | null) => {
     setSelectedMood(mood)
@@ -158,7 +160,8 @@ export default function MoodCinemaSection({ title = "Mood Cinema", subtitle = "C
               gap: 32,
             }}>
               {moodRecommendations.map((movie, i) => (
-                <MovieCard key={movie.id} movie={movie} index={i} />
+                <MovieCard key={movie.uuid} movie={movie} index={i} />
+
               ))}
             </div>
           ) : (

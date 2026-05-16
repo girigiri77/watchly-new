@@ -24,7 +24,8 @@ export interface TeluguPick {
   displayOrder: number
   trailerUrl: string
   /** When set, “Preview” / primary tap can deep-link into the main movie detail page. */
-  libraryMovieId?: number | null
+  libraryMovieId?: string | null
+
   gradientAccent: string
   releaseDate: string
   customPoster?: string

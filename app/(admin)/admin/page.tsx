@@ -34,76 +34,58 @@ import { ADMIN_MOVIES_STORAGE_KEY, MOOD_ORDERS_STORAGE_KEY, notifyMoodOrdersUpda
 import { getMoviesByMoodOrdered } from "@/lib/mood-utils"
 import { LANGUAGES, MOODS, OTT_PLATFORMS, type Mood, type MovieCurated, type MovieLanguage, type OTTPlatform } from "@/types/movie"
 
-type DraftMovie = Omit<MovieCurated, "id" | "moods" | "categories" | "homepageRows" | "genre"> & {
-  id?: number
+type DraftMovie = Omit<MovieCurated, "uuid" | "moods" | "genre"> & {
+  uuid?: string
   moods: string[]
-  categories: string
-  homepageRows: string
   genre: string
 }
 
+
 const emptyDraft: DraftMovie = {
-  tmdbId: 0,
+  uuid: undefined,
   title: "",
-  moods: ["Emotional"],
-  ottPlatform: "Netflix",
-  language: "Telugu",
-  rating: 8,
-  youtubeTrailer: "",
-  featured: false,
-  categories: "",
-  year: 2026,
-  duration: "2h 20m",
-  weeklyOTTRelease: false,
-  trending: false,
-  latestRelease: false,
-  heroFeatured: false,
-  editorialTagline: "",
-  weeklyOrder: 99,
-  trendingOrder: 99,
-  homepageRows: "",
-  editorialPick: false,
-  latestMovie: false,
-  acrossPlatforms: false,
-  featuredCollection: false,
-  poster: "https://image.tmdb.org/t/p/w500/placeholder.jpg",
+  description: "",
+  poster: "",
   backdrop: "",
-  customPoster: "",
-  customBackdrop: "",
-  overview: "",
-  releaseDate: "2026-05-12",
+  ott: "Netflix",
+  language: "Telugu",
+  release_date: "2026-05-12",
+  moods: ["Emotional"],
+  rating: 8,
+  trailer: "",
   genre: "Drama",
-  gradientAccent: "#7C3AED",
+  trending: false,
+  weekly: false,
+  featured: false,
+  mood_order: 99,
 }
+
 
 function toDraft(movie: MovieCurated): DraftMovie {
   return {
     ...movie,
     moods: movie.moods,
-    categories: movie.categories.join(", "),
-    homepageRows: movie.homepageRows?.join(", ") ?? "",
     genre: movie.genre.join(", "),
   }
 }
 
-function toMovie(draft: DraftMovie, fallbackId: number): MovieCurated {
+
+function toMovie(draft: DraftMovie, fallbackUuid: string): MovieCurated {
   return {
     ...draft,
-    id: draft.id ?? fallbackId,
+    uuid: draft.uuid ?? fallbackUuid,
     moods: draft.moods as Mood[],
-    ottPlatform: draft.ottPlatform as OTTPlatform,
+    ott: draft.ott as OTTPlatform,
     language: draft.language as MovieLanguage,
-    categories: draft.categories.split(",").map((item) => item.trim()).filter(Boolean),
-    homepageRows: draft.homepageRows.split(",").map((item) => item.trim()).filter(Boolean),
     genre: draft.genre.split(",").map((item) => item.trim()).filter(Boolean),
-    editorialTagline: draft.editorialTagline || undefined,
-    backdrop: draft.backdrop || undefined,
-    customPoster: draft.customPoster?.trim() || undefined,
-    customBackdrop: draft.customBackdrop?.trim() || undefined,
-    acrossPlatforms: false,
-    featuredCollection: false,
+    description: draft.description || "",
+    poster: draft.poster || "",
+    backdrop: draft.backdrop || "",
+    release_date: draft.release_date || "",
+    trailer: draft.trailer || "",
   }
 }
+
 
 function getMoodEmoji(mood: Mood): string {
   const moodEmojiMap: Record<Mood, string> = {
@@ -131,86 +113,60 @@ import { supabase } from "@/lib/supabase"
  */
 function mapToSupabase(movie: MovieCurated) {
   return {
-    tmdb_id: movie.tmdbId,
+    uuid: movie.uuid,
     title: movie.title,
-    moods: movie.moods,
-    ott: movie.ottPlatform,
-    language: movie.language,
-    rating: movie.rating,
-    youtube_trailer: movie.youtubeTrailer,
-    featured: movie.featured,
-    categories: movie.categories,
-    year: movie.year,
-    duration: movie.duration,
-    weekly_ott_release: movie.weeklyOTTRelease,
-    trending: movie.trending,
-    latest_release: movie.latestRelease,
-    hero_featured: movie.heroFeatured,
-    editorial_tagline: movie.editorialTagline,
-    weekly_order: movie.weeklyOrder,
-    trending_order: movie.trendingOrder,
-    homepage_rows: movie.homepageRows,
-    editorial_pick: movie.editorialPick,
-    latest_movie: movie.latestMovie,
-    across_platforms: movie.acrossPlatforms,
-    featured_collection: movie.featuredCollection,
+    description: movie.description,
     poster: movie.poster,
     backdrop: movie.backdrop,
-    custom_poster: movie.customPoster,
-    custom_backdrop: movie.customBackdrop,
-    description: movie.overview,
-    release_date: movie.releaseDate,
+    ott: movie.ott,
+    language: movie.language,
+    release_date: movie.release_date,
+    moods: movie.moods,
+    rating: Number(movie.rating || 0),
+
+    trailer: movie.trailer,
     genre: movie.genre,
-    gradient_accent: movie.gradientAccent,
+    trending: movie.trending,
+    weekly: movie.weekly,
+    featured: movie.featured,
+    mood_order: movie.mood_order,
   }
 }
+
 
 /**
  * Maps Supabase snake_case columns back to our camelCase MovieCurated interface
  */
 function mapFromSupabase(row: any): MovieCurated {
   return {
-    id: row.tmdb_id || 0,
-    tmdbId: row.tmdb_id,
+    uuid: row.uuid,
+    created_at: row.created_at,
     title: row.title,
-    moods: row.moods || [],
-    ottPlatform: row.ott,
+    description: row.description || "",
+    poster: row.poster || "",
+    backdrop: row.backdrop || "",
+    ott: row.ott,
     language: row.language,
-    rating: row.rating || 0,
-    youtubeTrailer: row.youtube_trailer,
-    featured: row.featured,
-    categories: row.categories || [],
-    year: row.year,
-    duration: row.duration,
-    weeklyOTTRelease: row.weekly_ott_release,
-    trending: row.trending,
-    latestRelease: row.latest_release,
-    heroFeatured: row.hero_featured,
-    editorialTagline: row.editorial_tagline,
-    weeklyOrder: row.weekly_order,
-    trendingOrder: row.trending_order,
-    homepageRows: row.homepage_rows || [],
-    editorialPick: row.editorial_pick,
-    latestMovie: row.latest_movie,
-    acrossPlatforms: row.across_platforms,
-    featuredCollection: row.featured_collection,
-    poster: row.poster,
-    backdrop: row.backdrop,
-    customPoster: row.custom_poster,
-    customBackdrop: row.custom_backdrop,
-    overview: row.description || row.overview,
-    releaseDate: row.release_date,
+    release_date: row.release_date || "",
+    moods: row.moods || [],
+    rating: Number(row.rating || 0),
+
+    trailer: row.trailer || "",
     genre: row.genre || [],
-    gradientAccent: row.gradient_accent,
+    trending: row.trending || false,
+    weekly: row.weekly || false,
+    featured: row.featured || false,
+    mood_order: row.mood_order || 0,
   }
 }
+
 
 export default function AdminPage() {
   const pathname = usePathname()
   const [movies, setMovies] = useState<MovieCurated[]>([])
-  const [moodOrders, setMoodOrders] = useState<Record<string, number[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
   const [query, setQuery] = useState("")
   const [platformFilter, setPlatformFilter] = useState<OTTPlatform | "All">("All")
   const [moodFilter, setMoodFilter] = useState<Mood | "All">("All")
@@ -225,12 +181,22 @@ export default function AdminPage() {
     setLoading(true)
     setError(null)
     try {
+      if (!supabase) {
+        console.error('Supabase Error: Supabase client not initialized. Check environment variables.')
+        setError('Supabase not configured')
+        setLoading(false)
+        return
+      }
+
       const { data, error: sbError } = await supabase
         .from('movies')
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (sbError) throw sbError
+      if (sbError) {
+        console.error('Supabase Full Error:', JSON.stringify(sbError, null, 2))
+        throw sbError
+      }
       setMovies(data?.map(mapFromSupabase) || [])
     } catch (err: any) {
       setError(err.message)
@@ -239,57 +205,42 @@ export default function AdminPage() {
     }
   }, [])
 
-  const fetchMoodOrders = useCallback(async () => {
-    try {
-      const { data, error: sbError } = await supabase
-        .from('mood_orders')
-        .select('*')
 
-      if (sbError) {
-        console.warn('Mood orders table might not exist yet:', sbError.message)
-        return
-      }
 
-      const orders: Record<string, number[]> = {}
-      data?.forEach((row: any) => {
-        orders[row.mood] = row.movie_ids
-      })
-      setMoodOrders(orders)
-    } catch (err) {
-      console.error('Failed to fetch mood orders:', err)
-    }
-  }, [])
+
 
   useEffect(() => {
     fetchMovies()
-    fetchMoodOrders()
-  }, [fetchMovies, fetchMoodOrders])
+  }, [fetchMovies])
+
 
   const filteredMovies = useMemo(() => {
     return movies.filter((movie) => {
       const matchesQuery = movie.title.toLowerCase().includes(query.toLowerCase())
-      const matchesPlatform = platformFilter === "All" || movie.ottPlatform === platformFilter
+      const matchesPlatform = platformFilter === "All" || movie.ott === platformFilter
       const matchesMood = moodFilter === "All" || movie.moods.includes(moodFilter)
       return matchesQuery && matchesPlatform && matchesMood
     })
   }, [movies, moodFilter, platformFilter, query])
 
   const weeklyMovies = useMemo(
-    () => movies.filter((movie) => movie.weeklyOTTRelease).sort((a, b) => (a.weeklyOrder ?? 999) - (b.weeklyOrder ?? 999)),
+    () => movies.filter((movie) => movie.weekly).sort((a, b) => (a.mood_order ?? 999) - (b.mood_order ?? 999)),
     [movies],
   )
 
   const trendingMovies = useMemo(
-    () => movies.filter((movie) => movie.trending).sort((a, b) => (a.trendingOrder ?? 999) - (b.trendingOrder ?? 999)),
+    () => movies.filter((movie) => movie.trending).sort((a, b) => (a.mood_order ?? 999) - (b.mood_order ?? 999)),
     [movies],
   )
 
+
   const stats = useMemo(() => ({
     totalMovies: movies.length,
-    weeklyReleases: movies.filter(m => m.weeklyOTTRelease).length,
+    weeklyReleases: movies.filter(m => m.weekly).length,
     featuredMovies: movies.filter(m => m.featured).length,
-    platforms: new Set(movies.map(m => m.ottPlatform)).size,
+    platforms: new Set(movies.map(m => m.ott)).size,
   }), [movies])
+
 
   const openCreate = () => {
     setDraft(emptyDraft)
@@ -318,15 +269,27 @@ export default function AdminPage() {
     event.preventDefault()
     setLoading(true)
     try {
-      const savedMovie = toMovie(draft, 0)
+      if (!supabase) {
+        console.error('Supabase Error: Supabase client not initialized. Check environment variables.')
+        setError('Supabase not configured')
+        setLoading(false)
+        return
+      }
+
+      const savedMovie = toMovie(draft, crypto.randomUUID())
       const payload = mapToSupabase(savedMovie)
       
+      // If adding new, remove uuid so DB generates it (if preferred) or keep it.
+      // Since it's upsert, we need a conflict target.
       const { error: sbError } = await supabase
         .from('movies')
-        .upsert(payload, { onConflict: 'tmdb_id' })
+        .upsert(payload, { onConflict: 'uuid' })
 
-      if (sbError) throw sbError
-      
+      if (sbError) {
+        console.error('Supabase Full Error:', JSON.stringify(sbError, null, 2))
+        throw sbError
+      }
+
       setModalOpen(false)
       fetchMovies()
     } catch (err: any) {
@@ -336,9 +299,16 @@ export default function AdminPage() {
     }
   }
 
-  const updateMovie = async (id: number, patch: Partial<MovieCurated>) => {
+
+  const updateMovie = async (uuid: string, patch: Partial<MovieCurated>) => {
     try {
-      const movie = movies.find(m => m.id === id)
+      if (!supabase) {
+        console.error('Supabase Error: Supabase client not initialized. Check environment variables.')
+        setError('Supabase not configured')
+        return
+      }
+
+      const movie = movies.find(m => m.uuid === uuid)
       if (!movie) return
 
       const updated = { ...movie, ...patch }
@@ -347,33 +317,47 @@ export default function AdminPage() {
       const { error: sbError } = await supabase
         .from('movies')
         .update(payload)
-        .eq('tmdb_id', id)
+        .eq('uuid', uuid)
 
-      if (sbError) throw sbError
+      if (sbError) {
+        console.error('Supabase Full Error:', JSON.stringify(sbError, null, 2))
+        throw sbError
+      }
       fetchMovies()
     } catch (err: any) {
       setError(err.message)
     }
   }
 
-  const deleteMovie = async (id: number) => {
+
+  const deleteMovie = async (uuid: string) => {
     if (!confirm("Are you sure you want to delete this movie?")) return
     try {
+      if (!supabase) {
+        console.error('Supabase Error: Supabase client not initialized. Check environment variables.')
+        setError('Supabase not configured')
+        return
+      }
+
       const { error: sbError } = await supabase
         .from('movies')
         .delete()
-        .eq('tmdb_id', id)
+        .eq('uuid', uuid)
 
-      if (sbError) throw sbError
+      if (sbError) {
+        console.error('Supabase Full Error:', JSON.stringify(sbError, null, 2))
+        throw sbError
+      }
       fetchMovies()
     } catch (err: any) {
       setError(err.message)
     }
   }
 
-  const moveWeekly = async (id: number, direction: -1 | 1) => {
-    const ordered = weeklyMovies.map((movie) => movie.id)
-    const index = ordered.indexOf(id)
+
+  const moveWeekly = async (uuid: string, direction: -1 | 1) => {
+    const ordered = weeklyMovies.map((movie) => movie.uuid)
+    const index = ordered.indexOf(uuid)
     const target = index + direction
     if (target < 0 || target >= ordered.length) return
     const swapped = [...ordered]
@@ -381,26 +365,30 @@ export default function AdminPage() {
     
     // Optimistic update
     const updatedMovies = movies.map((movie) =>
-      swapped.includes(movie.id) ? { ...movie, weeklyOrder: swapped.indexOf(movie.id) + 1 } : movie
+      swapped.includes(movie.uuid) ? { ...movie, mood_order: swapped.indexOf(movie.uuid) + 1 } : movie
     )
     setMovies(updatedMovies)
 
     try {
       const updates = updatedMovies
-        .filter(m => swapped.includes(m.id))
+        .filter(m => swapped.includes(m.uuid))
         .map(m => mapToSupabase(m))
       
       const { error: sbError } = await supabase.from('movies').upsert(updates)
-      if (sbError) throw sbError
+      if (sbError) {
+        console.error('Supabase Full Error:', JSON.stringify(sbError, null, 2))
+        throw sbError
+      }
     } catch (err: any) {
       setError("Failed to sync weekly order: " + err.message)
       fetchMovies() // rollback
     }
   }
 
-  const moveTrending = async (id: number, direction: -1 | 1) => {
-    const ordered = trendingMovies.map((movie) => movie.id)
-    const index = ordered.indexOf(id)
+
+  const moveTrending = async (uuid: string, direction: -1 | 1) => {
+    const ordered = trendingMovies.map((movie) => movie.uuid)
+    const index = ordered.indexOf(uuid)
     const target = index + direction
     if (target < 0 || target >= ordered.length) return
     const swapped = [...ordered]
@@ -408,22 +396,26 @@ export default function AdminPage() {
     
     // Optimistic update
     const updatedMovies = movies.map((movie) =>
-      swapped.includes(movie.id) ? { ...movie, trendingOrder: swapped.indexOf(movie.id) + 1 } : movie
+      swapped.includes(movie.uuid) ? { ...movie, mood_order: swapped.indexOf(movie.uuid) + 1 } : movie
     )
     setMovies(updatedMovies)
 
     try {
       const updates = updatedMovies
-        .filter(m => swapped.includes(m.id))
+        .filter(m => swapped.includes(m.uuid))
         .map(m => mapToSupabase(m))
       
       const { error: sbError } = await supabase.from('movies').upsert(updates)
-      if (sbError) throw sbError
+      if (sbError) {
+        console.error('Supabase Full Error:', JSON.stringify(sbError, null, 2))
+        throw sbError
+      }
     } catch (err: any) {
       setError("Failed to sync trending order: " + err.message)
       fetchMovies() // rollback
     }
   }
+
 
   async function signOut() {
     setSidebarOpen(false)
@@ -603,14 +595,14 @@ export default function AdminPage() {
                   <h2 className="text-lg font-semibold mb-4">Recent Movies</h2>
                   <div className="space-y-3">
                     {movies.slice(0, 5).map((movie) => (
-                      <div key={movie.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+                      <div key={movie.uuid} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-[#7C3AED]/20 flex items-center justify-center">
                             <Film size={16} className="text-[#7C3AED]" />
                           </div>
                           <div>
                             <div className="font-medium">{movie.title}</div>
-                            <div className="text-xs text-[#6B7280]">{movie.ottPlatform} • {movie.year}</div>
+                            <div className="text-xs text-[#6B7280]">{movie.ott} • {movie.year}</div>
                           </div>
                         </div>
                         <button suppressHydrationWarning onClick={() => openEdit(movie)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
@@ -725,12 +717,12 @@ export default function AdminPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {filteredMovies.map((movie) => (
-                        <tr key={movie.id} className="hover:bg-violet-50/80">
+                        <tr key={movie.uuid} className="hover:bg-violet-50/80">
                           <td className="py-3 px-4">
                             <div className="font-medium">{movie.title}</div>
                             <div className="text-xs text-[#6B7280]">{movie.language} • {movie.year}</div>
                           </td>
-                          <td className="py-3 px-4">{movie.ottPlatform}</td>
+                          <td className="py-3 px-4">{movie.ott}</td>
                           <td className="py-3 px-4">
                             <div className="flex flex-wrap gap-1">
                               {movie.moods.slice(0, 2).map((mood) => (
@@ -741,16 +733,16 @@ export default function AdminPage() {
                               {movie.moods.length > 2 && <span className="text-xs text-[#6B7280]">+{movie.moods.length - 2}</span>}
                             </div>
                           </td>
-                          <td className="py-3 px-4">{movie.rating.toFixed(1)}</td>
+                          <td className="py-3 px-4">{Number(movie.rating || 0).toFixed(1)}</td>
                           <td className="py-3 px-4 text-xs text-[#6B7280]">
-                            {[movie.featured && "Featured", movie.trending && "Trending", movie.weeklyOTTRelease && "Weekly"].filter(Boolean).join(", ") || "-"}
+                            {[movie.featured && "Featured", movie.trending && "Trending", movie.weekly && "Weekly"].filter(Boolean).join(", ") || "-"}
                           </td>
                           <td className="py-3 px-4 text-right">
                             <div className="flex justify-end gap-2">
                               <button suppressHydrationWarning onClick={() => openEdit(movie)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                                 <Edit3 size={14} />
                               </button>
-                              <button suppressHydrationWarning onClick={() => deleteMovie(movie.id)} className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
+                              <button suppressHydrationWarning onClick={() => deleteMovie(movie.uuid)} className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
                                 <Trash2 size={14} />
                               </button>
                             </div>
@@ -772,24 +764,25 @@ export default function AdminPage() {
 
                 <div className="space-y-2">
                   {weeklyMovies.map((movie, index) => (
-                    <div key={movie.id} className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                    <div key={movie.uuid} className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
                       <div className="flex items-center gap-4">
                         <div className="w-8 h-8 rounded-lg bg-[#7C3AED]/20 flex items-center justify-center text-sm font-bold text-[#A78BFA]">
                           {index + 1}
                         </div>
                         <div>
                           <div className="font-medium">{movie.title}</div>
-                          <div className="text-xs text-[#6B7280]">{movie.ottPlatform} • {movie.language}</div>
+                          <div className="text-xs text-[#6B7280]">{movie.ott} • {movie.language}</div>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button suppressHydrationWarning onClick={() => moveWeekly(movie.id, -1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" disabled={index === 0}>
+                        <button suppressHydrationWarning onClick={() => moveWeekly(movie.uuid, -1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" disabled={index === 0}>
                           ↑
                         </button>
-                        <button suppressHydrationWarning onClick={() => moveWeekly(movie.id, 1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" disabled={index === weeklyMovies.length - 1}>
+                        <button suppressHydrationWarning onClick={() => moveWeekly(movie.uuid, 1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" disabled={index === weeklyMovies.length - 1}>
                           ↓
                         </button>
-                        <button suppressHydrationWarning onClick={() => updateMovie(movie.id, { weeklyOTTRelease: false })} className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
+                        <button suppressHydrationWarning onClick={() => updateMovie(movie.uuid, { weekly: false })} className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
+
                           <X size={14} />
                         </button>
                       </div>
@@ -822,13 +815,14 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {movies.filter(m => m.latestMovie).map((movie) => (
-                        <tr key={movie.id} className="hover:bg-violet-50/80">
+                      {movies.filter(m => m.featured).map((movie) => (
+                        <tr key={movie.uuid} className="hover:bg-violet-50/80">
                           <td className="py-3 px-4">
                             <div className="font-medium">{movie.title}</div>
-                            <div className="text-xs text-[#6B7280]">{movie.language} • {movie.year}</div>
+                            <div className="text-xs text-[#6B7280]">{movie.language} • {new Date(movie.release_date).getFullYear()}</div>
                           </td>
-                          <td className="py-3 px-4">{movie.ottPlatform}</td>
+
+                          <td className="py-3 px-4">{movie.ott}</td>
                           <td className="py-3 px-4">
                             <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">Active</span>
                           </td>
@@ -837,7 +831,8 @@ export default function AdminPage() {
                               <button suppressHydrationWarning onClick={() => openEdit(movie)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                                 <Edit3 size={14} />
                               </button>
-                              <button suppressHydrationWarning onClick={() => updateMovie(movie.id, { latestMovie: false })} className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
+                              <button suppressHydrationWarning onClick={() => updateMovie(movie.uuid, { featured: false })} className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
+
                                 <X size={14} />
                               </button>
                             </div>
@@ -859,24 +854,24 @@ export default function AdminPage() {
 
                 <div className="space-y-2">
                   {trendingMovies.map((movie, index) => (
-                    <div key={movie.id} className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                    <div key={movie.uuid} className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
                       <div className="flex items-center gap-4">
                         <div className="w-8 h-8 rounded-lg bg-[#7C3AED]/20 flex items-center justify-center text-sm font-bold text-[#A78BFA]">
                           {index + 1}
                         </div>
                         <div>
                           <div className="font-medium">{movie.title}</div>
-                          <div className="text-xs text-[#6B7280]">{movie.ottPlatform} • {movie.rating.toFixed(1)} Rating</div>
+                          <div className="text-xs text-[#6B7280]">{movie.ott} • {Number(movie.rating || 0).toFixed(1)} Rating</div>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button suppressHydrationWarning onClick={() => moveTrending(movie.id, -1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" disabled={index === 0}>
+                        <button suppressHydrationWarning onClick={() => moveTrending(movie.uuid, -1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" disabled={index === 0}>
                           ↑
                         </button>
-                        <button suppressHydrationWarning onClick={() => moveTrending(movie.id, 1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" disabled={index === trendingMovies.length - 1}>
+                        <button suppressHydrationWarning onClick={() => moveTrending(movie.uuid, 1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" disabled={index === trendingMovies.length - 1}>
                           ↓
                         </button>
-                        <button suppressHydrationWarning onClick={() => updateMovie(movie.id, { trending: false })} className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
+                        <button suppressHydrationWarning onClick={() => updateMovie(movie.uuid, { trending: false })} className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
                           <X size={14} />
                         </button>
                       </div>
@@ -899,45 +894,44 @@ export default function AdminPage() {
       <AdminModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={draft.id ? "Edit Movie" : "Add Movie"}
+        title={draft.uuid ? "Edit Movie" : "Add Movie"}
+
         maxWidth="max-w-4xl"
       >
         <form suppressHydrationWarning onSubmit={saveMovie}>
           <div className="grid gap-4 md:grid-cols-2 mb-6">
             <Field label="Movie Title"><input suppressHydrationWarning required value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></Field>
-            <Field label="OTT Platform"><select suppressHydrationWarning value={draft.ottPlatform} onChange={(event) => setDraft({ ...draft, ottPlatform: event.target.value as OTTPlatform })}>{OTT_PLATFORMS.map((platform) => <option key={platform}>{platform}</option>)}</select></Field>
+            <Field label="OTT Platform"><select suppressHydrationWarning value={draft.ott} onChange={(event) => setDraft({ ...draft, ott: event.target.value as OTTPlatform })}>{OTT_PLATFORMS.map((platform) => <option key={platform}>{platform}</option>)}</select></Field>
+
             <Field label="Language"><select suppressHydrationWarning value={draft.language} onChange={(event) => setDraft({ ...draft, language: event.target.value as MovieLanguage })}>{LANGUAGES.map((language) => <option key={language}>{language}</option>)}</select></Field>
             <Field label="Rating"><input suppressHydrationWarning type="number" min="0" max="10" step="0.1" value={draft.rating} onChange={(event) => setDraft({ ...draft, rating: Number(event.target.value) })} /></Field>
-            <Field label="Release Year"><input suppressHydrationWarning type="number" value={draft.year} onChange={(event) => setDraft({ ...draft, year: Number(event.target.value) })} /></Field>
-            <Field label="Duration"><input suppressHydrationWarning value={draft.duration} onChange={(event) => setDraft({ ...draft, duration: event.target.value })} /></Field>
-            <Field label="Release Date"><input suppressHydrationWarning type="date" value={draft.releaseDate} onChange={(event) => setDraft({ ...draft, releaseDate: event.target.value })} /></Field>
-            <Field label="YouTube Trailer"><input suppressHydrationWarning value={draft.youtubeTrailer} onChange={(event) => setDraft({ ...draft, youtubeTrailer: event.target.value })} /></Field>
+            <Field label="Release Date"><input suppressHydrationWarning type="date" value={draft.release_date} onChange={(event) => setDraft({ ...draft, release_date: event.target.value })} /></Field>
+            <Field label="YouTube Trailer"><input suppressHydrationWarning value={draft.trailer} onChange={(event) => setDraft({ ...draft, trailer: event.target.value })} /></Field>
             <div className="md:col-span-2 grid gap-4 md:grid-cols-2">
               <MovieImageUpload
                 label="Upload Poster"
                 kind="poster"
                 slug={draft.title || "movie"}
-                storedPath={draft.customPoster ?? ""}
-                onPathChange={(path) => setDraft({ ...draft, customPoster: path })}
+                storedPath={draft.poster}
+                onPathChange={(path) => setDraft({ ...draft, poster: path })}
                 fallbackLabel="poster URL field below"
               />
               <MovieImageUpload
                 label="Upload Backdrop"
                 kind="backdrop"
                 slug={draft.title || "movie"}
-                storedPath={draft.customBackdrop ?? ""}
-                onPathChange={(path) => setDraft({ ...draft, customBackdrop: path })}
+                storedPath={draft.backdrop}
+                onPathChange={(path) => setDraft({ ...draft, backdrop: path })}
                 fallbackLabel="backdrop URL field below"
               />
             </div>
             <Field label="Poster URL (fallback)"><input suppressHydrationWarning value={draft.poster} onChange={(event) => setDraft({ ...draft, poster: event.target.value })} /></Field>
             <Field label="Backdrop URL (fallback)"><input suppressHydrationWarning value={draft.backdrop ?? ""} onChange={(event) => setDraft({ ...draft, backdrop: event.target.value })} /></Field>
-            <Field label="Gradient Accent"><input suppressHydrationWarning value={draft.gradientAccent} onChange={(event) => setDraft({ ...draft, gradientAccent: event.target.value })} /></Field>
-            <Field label="Editorial Tagline"><input suppressHydrationWarning value={draft.editorialTagline ?? ""} onChange={(event) => setDraft({ ...draft, editorialTagline: event.target.value })} /></Field>
             <label className="md:col-span-2">
-              <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Overview</span>
-              <textarea suppressHydrationWarning value={draft.overview} onChange={(event) => setDraft({ ...draft, overview: event.target.value })} className="min-h-20 w-full rounded-lg border border-gray-200 bg-[#FAFAF7] px-4 py-3 text-sm text-[#111827] outline-none transition-colors focus:border-[#7C3AED]" />
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Description</span>
+              <textarea suppressHydrationWarning value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} className="min-h-20 w-full rounded-lg border border-gray-200 bg-[#FAFAF7] px-4 py-3 text-sm text-[#111827] outline-none transition-colors focus:border-[#7C3AED]" />
             </label>
+
           </div>
 
           <div className="mb-6" id="admin-modal-moods">
@@ -969,11 +963,9 @@ export default function AdminPage() {
               {[
                 ["featured", "Featured"],
                 ["trending", "Trending"],
-                ["latestRelease", "Latest Release"],
-                ["heroFeatured", "Hero Featured"],
-                ["weeklyOTTRelease", "Weekly OTT"],
-                ["editorialPick", "Editorial Pick"],
+                ["weekly", "Weekly"],
               ].map(([key, label]) => (
+
                 <label key={key} className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-[#FAFAF7] p-3 transition-colors hover:bg-gray-100">
                   <input suppressHydrationWarning type="checkbox" checked={Boolean(draft[key as keyof DraftMovie])} onChange={(event) => setDraft({ ...draft, [key]: event.target.checked })} className="rounded border-gray-200 bg-gray-50 text-[#7C3AED] focus:ring-[#7C3AED]" />
                   <span className="text-sm">{label}</span>
@@ -983,17 +975,15 @@ export default function AdminPage() {
           </div>
 
           <div className="mb-6">
-            <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Homepage Sections</div>
-            <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-[#FAFAF7] p-3 transition-colors hover:bg-gray-100 md:max-w-md">
-              <input suppressHydrationWarning
-                type="checkbox"
-                checked={Boolean(draft.latestMovie)}
-                onChange={(event) => setDraft({ ...draft, latestMovie: event.target.checked })}
-                className="rounded border-gray-200 bg-gray-50 text-[#7C3AED] focus:ring-[#7C3AED]"
-              />
-              <span className="text-sm">Latest Movies row on the homepage</span>
-            </label>
+            <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Ordering</div>
+            <Field label="Mood Order"><input suppressHydrationWarning type="number" value={draft.mood_order} onChange={(event) => setDraft({ ...draft, mood_order: Number(event.target.value) })} /></Field>
           </div>
+
+
+          <div className="mb-6">
+            {/* Homepage row flag removed from schema, can be determined by trending/featured/weekly */}
+          </div>
+
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button suppressHydrationWarning type="button" onClick={() => setModalOpen(false)} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-gray-100">
@@ -1014,31 +1004,35 @@ export default function AdminPage() {
         }}
         mood={selectedMoodForOrder}
         movies={movies}
-        moodOrders={moodOrders}
         onOrderChange={async (newOrder) => {
           if (!selectedMoodForOrder) return
           
-          // Optimistic update
-          setMoodOrders((prev) => ({
-            ...prev,
-            [selectedMoodForOrder]: newOrder,
+          // Optimistic local update
+          setMovies(prev => prev.map(m => {
+            const idx = newOrder.indexOf(m.uuid)
+            if (idx !== -1) return { ...m, mood_order: idx + 1 }
+            return m
           }))
 
           try {
-            const { error: sbError } = await supabase
-              .from('mood_orders')
-              .upsert({ 
-                mood: selectedMoodForOrder, 
-                movie_ids: newOrder 
-              }, { onConflict: 'mood' })
+            // Update Supabase for each movie in the new order
+            const promises = newOrder.map((uuid, index) => 
+              supabase
+                .from('movies')
+                .update({ mood_order: index + 1 })
+                .eq('uuid', uuid)
+            )
             
-            if (sbError) throw sbError
+            const results = await Promise.all(promises)
+            const error = results.find(r => r.error)?.error
+            if (error) throw error
           } catch (err: any) {
             console.error('Failed to save mood orders:', err)
-            setError("Failed to save mood orders. Make sure the 'mood_orders' table exists.")
+            setError("Failed to save mood orders.")
           }
         }}
       />
+
     </main>
   )
 }
@@ -1120,51 +1114,52 @@ function MoodOrderModal({
   onClose,
   mood,
   movies,
-  moodOrders,
   onOrderChange,
 }: {
   isOpen: boolean
   onClose: () => void
   mood: Mood | null
   movies: MovieCurated[]
-  moodOrders: Record<string, number[]>
-  onOrderChange: (newOrder: number[]) => void
+  onOrderChange: (newOrder: string[]) => void
 }) {
-  const [lastMovedId, setLastMovedId] = useState<number | null>(null)
+
+  const [lastMovedId, setLastMovedId] = useState<string | null>(null)
 
   const orderedMovies = useMemo(() => {
     if (!mood) return []
-    return getMoviesByMoodOrdered(movies, moodOrders, mood)
-  }, [movies, moodOrders, mood])
+    return getMoviesByMoodOrdered(movies, mood)
+  }, [movies, mood])
+
 
   if (!mood) return null
 
-  const moveItem = (id: number, direction: -1 | 1) => {
-    const ids = orderedMovies.map((m) => m.id)
-    const index = ids.indexOf(id)
+  const moveItem = (uuid: string, direction: -1 | 1) => {
+    const uuids = orderedMovies.map((m) => m.uuid)
+    const index = uuids.indexOf(uuid)
     const target = index + direction
-    if (target < 0 || target >= ids.length) return
-    const newIds = [...ids]
-    ;[newIds[index], newIds[target]] = [newIds[target], newIds[index]]
-    setLastMovedId(id)
-    onOrderChange(newIds)
+    if (target < 0 || target >= uuids.length) return
+    const newUuids = [...uuids]
+    ;[newUuids[index], newUuids[target]] = [newUuids[target], newUuids[index]]
+    setLastMovedId(uuid)
+    onOrderChange(newUuids)
     setTimeout(() => setLastMovedId(null), 1000)
   }
 
-  const handlePositionChange = (id: number, newPos: number) => {
-    const ids = orderedMovies.map((m) => m.id)
-    const oldIndex = ids.indexOf(id)
+  const handlePositionChange = (uuid: string, newPos: number) => {
+    const uuids = orderedMovies.map((m) => m.uuid)
+    const oldIndex = uuids.indexOf(uuid)
     const newIndex = newPos - 1
 
     if (oldIndex === newIndex) return
 
-    const newIds = [...ids]
-    const [removed] = newIds.splice(oldIndex, 1)
-    newIds.splice(newIndex, 0, removed)
-    setLastMovedId(id)
-    onOrderChange(newIds)
+    const newUuids = [...uuids]
+    const [removed] = newUuids.splice(oldIndex, 1)
+    newUuids.splice(newIndex, 0, removed)
+    setLastMovedId(uuid)
+    onOrderChange(newUuids)
     setTimeout(() => setLastMovedId(null), 1000)
   }
+
 
   return (
     <AdminModal isOpen={isOpen} onClose={onClose} title={`Ranking: ${mood}`} maxWidth="max-w-2xl">
@@ -1180,14 +1175,14 @@ function MoodOrderModal({
           <AnimatePresence mode="popLayout" initial={false}>
             {orderedMovies.map((movie, index) => (
               <motion.div
-                key={movie.id}
+                key={movie.uuid}
                 layout
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ 
                   opacity: 1, 
                   scale: 1,
-                  backgroundColor: lastMovedId === movie.id ? "#F5F3FF" : "#F9FAFB",
-                  borderColor: lastMovedId === movie.id ? "#DDD6FE" : "#F3F4F6",
+                  backgroundColor: lastMovedId === movie.uuid ? "#F5F3FF" : "#F9FAFB",
+                  borderColor: lastMovedId === movie.uuid ? "#DDD6FE" : "#F3F4F6",
                 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ 
@@ -1200,7 +1195,7 @@ function MoodOrderModal({
                   <PositionInput
                     value={index + 1}
                     max={orderedMovies.length}
-                    onChange={(val) => handlePositionChange(movie.id, val)}
+                    onChange={(val) => handlePositionChange(movie.uuid, val)}
                   />
                   
                   <div className="min-w-0">
@@ -1208,7 +1203,8 @@ function MoodOrderModal({
                     <div className="mt-0.5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[#6B7280]">
                       <span className="rounded bg-gray-100 px-1.5 py-0.5">{movie.language}</span>
                       <span>•</span>
-                      <span>{movie.year}</span>
+                      <span>{new Date(movie.release_date).getFullYear()}</span>
+
                     </div>
                   </div>
                 </div>
@@ -1216,7 +1212,7 @@ function MoodOrderModal({
                 <div className="flex items-center gap-1.5 rounded-xl bg-white p-1 shadow-inner border border-gray-100">
                   <button
                     type="button"
-                    onClick={() => moveItem(movie.id, -1)}
+                    onClick={() => moveItem(movie.uuid, -1)}
                     disabled={index === 0}
                     className="flex h-9 w-9 items-center justify-center rounded-lg text-[#6B7280] transition-all hover:bg-violet-50 hover:text-[#7C3AED] disabled:opacity-20 active:scale-90"
                   >
@@ -1225,7 +1221,7 @@ function MoodOrderModal({
                   <div className="h-4 w-px bg-gray-100" />
                   <button
                     type="button"
-                    onClick={() => moveItem(movie.id, 1)}
+                    onClick={() => moveItem(movie.uuid, 1)}
                     disabled={index === orderedMovies.length - 1}
                     className="flex h-9 w-9 items-center justify-center rounded-lg text-[#6B7280] transition-all hover:bg-violet-50 hover:text-[#7C3AED] disabled:opacity-20 active:scale-90"
                   >
