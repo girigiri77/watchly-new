@@ -122,10 +122,7 @@ function ReleasesContent() {
               </div>
 
               {movies.filter(m => m.trending).length > 0 ? (
-                <div
-                  className="grid gap-8"
-                  style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
-                >
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8">
                   {movies
                     .filter((m) => m.trending)
                     .sort((a, b) => (a.mood_order ?? 999) - (b.mood_order ?? 999))
@@ -145,10 +142,7 @@ function ReleasesContent() {
             </div>
           </div>
         ) : (
-          <div
-            className="mt-8 grid gap-8 pb-8 sm:mt-10"
-            style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
-          >
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8 pb-8 sm:mt-10">
             {list.map((movie, i) => (
               <MovieCard key={movie.uuid} movie={movie} index={i} />
             ))}

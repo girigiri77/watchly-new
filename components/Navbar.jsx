@@ -53,62 +53,31 @@ export default function Navbar() {
 
   return (
     <>
-      <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: scrolled ? '20px 48px' : '28px 48px',
-        background: navBg,
-        backdropFilter: navBlur,
-        WebkitBackdropFilter: navBlur,
-        borderBottom: navBorderBottom,
-        transition: 'all 0.4s cubic-bezier(0.25,0.46,0.45,0.94)',
-      }}>
-        {/* Logo */}
-        <Link href="/" style={{
-          textDecoration: 'none',
-          display: 'flex', alignItems: 'center', gap: '16px',
-          transition: 'transform 0.3s',
+      <nav 
+        className={`fixed top-0 left-0 right-0 z-[100] flex items-center justify-between transition-all duration-300 ease-out ${
+          scrolled ? 'py-3 px-4 sm:px-8 lg:px-12' : 'py-5 px-4 sm:px-8 lg:px-12'
+        }`}
+        style={{
+          background: navBg,
+          backdropFilter: navBlur,
+          WebkitBackdropFilter: navBlur,
+          borderBottom: navBorderBottom,
         }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <div style={{
-            width: 48, height: 48,
-            background: 'var(--purple-gradient)',
-            borderRadius: 16,
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'center', fontSize: 20, fontWeight: 900,
-            boxShadow: 'var(--soft-shadow)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            <div className="shimmer" style={{
-              position: 'absolute', inset: 0,
-              opacity: 0.3,
-            }} />
-            <span style={{ position: 'relative', zIndex: 1, color: 'white' }}>🎬</span>
+      >
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-4 transition-transform duration-300 hover:scale-[1.02]">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-fuchsia-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl font-black text-white shadow-md relative overflow-hidden">
+            <div className="shimmer absolute inset-0 opacity-30" />
+            <span className="relative z-10">🎬</span>
           </div>
           <div>
-            <span style={{
-              fontFamily: 'Playfair Display, serif',
-              fontSize: 28,
-              fontWeight: 900,
-              color: '#111827',
-              letterSpacing: '-0.5px',
-              display: 'block',
-              lineHeight: 1,
-            }}>
+            <span className="font-playfair text-xl sm:text-2xl md:text-3xl font-black text-[#111827] tracking-tight leading-none block">
               Absolute
               <span className="gradient-text-purple"> Cinema</span>
             </span>
-            <span style={{
-              fontSize: 10,
-              color: '#7C3AED',
-              letterSpacing: 3,
-              textTransform: 'uppercase',
-              fontWeight: 600,
-              fontFamily: 'Inter, sans-serif',
-            }}>Cinema for Every Emotion</span>
+            <span className="hidden sm:block text-[9px] sm:text-[10px] text-[#7C3AED] tracking-[0.2em] uppercase font-semibold font-sans mt-1">
+              Cinema for Every Emotion
+            </span>
           </div>
         </Link>
 
@@ -156,13 +125,9 @@ export default function Navbar() {
         </div>
 
         {/* Right Side */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        <div className="flex items-center gap-2 sm:gap-4 md:gap-5">
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex" style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-          }}>
+          <div className="hidden md:flex relative items-center">
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -207,150 +172,47 @@ export default function Navbar() {
           </div>
 
           {/* Search Button - Mobile */}
-          <Link href="/search" className="md:hidden" style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: 44, height: 44,
-            background: 'rgba(255,255,255,0.8)',
-            border: '1px solid rgba(124,58,237,0.1)',
-            color: '#4B5563',
-            borderRadius: 100,
-            textDecoration: 'none',
-            transition: 'all 0.3s',
-            boxShadow: 'var(--card-shadow)',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = 'rgba(124,58,237,0.08)'
-            e.currentTarget.style.borderColor = 'rgba(124,58,237,0.3)'
-            e.currentTarget.style.color = '#111827'
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.8)'
-            e.currentTarget.style.borderColor = 'rgba(124,58,237,0.1)'
-            e.currentTarget.style.color = '#4B5563'
-          }}
-          >
-            <Search size={20} />
+          <Link href="/search" className="md:hidden flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 bg-white/80 border border-purple-100/50 text-[#4B5563] rounded-full shadow-sm hover:bg-purple-50/50 hover:text-[#7C3AED] hover:border-purple-200 transition duration-300">
+            <Search size={18} />
           </Link>
 
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden"
+            className="lg:hidden flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 bg-white/80 border border-purple-100/50 text-[#4B5563] rounded-full shadow-sm hover:bg-purple-50/50 hover:text-[#7C3AED] hover:border-purple-200 transition duration-300"
             suppressHydrationWarning
-            style={{
-              background: 'rgba(255,255,255,0.8)',
-              border: '1px solid rgba(124,58,237,0.1)',
-              color: '#4B5563',
-              width: 44, height: 44,
-              borderRadius: 100,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              boxShadow: 'var(--card-shadow)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(124,58,237,0.08)'
-              e.currentTarget.style.borderColor = 'rgba(124,58,237,0.3)'
-              e.currentTarget.style.color = '#111827'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.8)'
-              e.currentTarget.style.borderColor = 'rgba(124,58,237,0.1)'
-              e.currentTarget.style.color = '#4B5563'
-            }}
           >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </nav>
 
       {/* Mobile Menu Overlay */}
       {menuOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(250,250,247,0.95)',
-          backdropFilter: 'blur(30px) saturate(180%)',
-          zIndex: 99,
-          paddingTop: '100px',
-          animation: 'slideInRight 0.3s ease',
-        }}>
-          <div style={{
-            padding: '32px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-          }}>
+        <div className="fixed inset-0 bg-[#FAFAF7]/98 backdrop-blur-xl z-[99] pt-24 px-4 sm:px-6 overflow-y-auto duration-300">
+          <div className="max-w-md mx-auto flex flex-col gap-4 py-8">
             {navItems.map(({ href, label, icon: Icon }, index) => (
               <Link
                 key={href}
                 href={href}
                 onClick={() => setMenuOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  padding: '20px 28px',
-                  borderRadius: 20,
-                  background: 'rgba(255,255,255,0.8)',
-                  border: '1px solid rgba(124,58,237,0.1)',
-                  color: '#4B5563',
-                  textDecoration: 'none',
-                  fontSize: 16,
-                  fontWeight: 600,
-                  transition: 'all 0.3s',
-                  animation: `slideInLeft 0.3s ease ${index * 0.1}s both`,
-                  fontFamily: 'Inter, sans-serif',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(124,58,237,0.08)'
-                  e.currentTarget.style.borderColor = 'rgba(124,58,237,0.3)'
-                  e.currentTarget.style.color = '#111827'
-                  e.currentTarget.style.transform = 'translateX(8px)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.8)'
-                  e.currentTarget.style.borderColor = 'rgba(124,58,237,0.1)'
-                  e.currentTarget.style.color = '#4B5563'
-                  e.currentTarget.style.transform = 'translateX(0)'
-                }}
+                className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-purple-100/50 text-[#4B5563] hover:text-[#111827] hover:bg-purple-50/40 hover:border-purple-200 hover:translate-x-1.5 transition-all duration-300 font-semibold"
               >
-                <Icon size={20} style={{ color: '#7C3AED' }} />
-                {label}
+                <Icon size={20} className="text-[#7C3AED]" />
+                <span>{label}</span>
               </Link>
             ))}
 
-            {/* Mobile Search */}
-            <div style={{
-              padding: '20px 28px',
-              marginTop: 20,
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
-                background: 'rgba(255,255,255,0.8)',
-                border: '1px solid rgba(124,58,237,0.1)',
-                padding: '16px 24px',
-                borderRadius: 100,
-              }}>
-                <Search size={20} style={{ color: '#7C3AED' }} />
+            {/* Mobile Search Input */}
+            <div className="mt-6 p-1">
+              <div className="flex items-center gap-3 bg-white border border-purple-100 p-4 rounded-full shadow-sm focus-within:border-purple-300 focus-within:bg-purple-50/30 transition-all duration-300">
+                <Search size={20} className="text-[#7C3AED]" />
                 <input
                   type="text"
-                  placeholder="Discover cinema, emotions, stories..."
+                  placeholder="Discover movies & emotions..."
                   suppressHydrationWarning
                   autoComplete="off"
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    outline: 'none',
-                    color: '#111827',
-                    fontSize: 16,
-                    fontWeight: 500,
-                    width: '100%',
-                    fontFamily: 'Inter, sans-serif',
-                  }}
+                  className="bg-transparent border-none outline-none text-[#111827] text-base w-full font-medium"
                 />
               </div>
             </div>

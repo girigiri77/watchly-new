@@ -47,7 +47,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
   return (
     <>
       <TiltCard intensity={10} className="block h-full w-full">
-        <article className="h-full group overflow-hidden rounded-[20px] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.22)] transition-transform duration-300 ease-out hover:-translate-y-2">
+        <article className="h-full group overflow-hidden rounded-[20px] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.22)] transition-transform duration-300 ease-out md:hover:-translate-y-2">
           <Link href={`/movie/${movie.uuid}`} className="block">
           <div className="relative aspect-[2/3] overflow-hidden bg-[#191919]">
             {!imageFailed ? (
@@ -58,75 +58,72 @@ export default function MovieCard({ movie }: MovieCardProps) {
                 onError={() => {
                   startTransition(() => setImageFailed(true))
                 }}
-                className="h-full w-full object-cover transition duration-700 group-hover:scale-110 group-hover:brightness-110"
+                className="h-full w-full object-cover transition duration-700 md:group-hover:scale-105 md:group-hover:brightness-110"
               />
             ) : (
               <div
-                className="flex h-full flex-col items-center justify-center px-6 text-center"
+                className="flex h-full flex-col items-center justify-center px-4 text-center sm:px-6"
               >
-                <div className="mb-5 text-5xl">🎬</div>
-                <div className="font-playfair text-xl font-black text-white">{movie.title}</div>
-                <div className="mt-3 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">{movie.language}</div>
+                <div className="mb-3 text-3xl sm:mb-5 sm:text-5xl">🎬</div>
+                <div className="font-playfair text-base font-black text-white sm:text-xl">{movie.title}</div>
+                <div className="mt-2 text-[9px] font-bold uppercase tracking-[0.3em] text-white/50 sm:text-[10px]">{movie.language}</div>
               </div>
-
             )}
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-95" />
 
             <div
-              className="absolute left-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-lg"
+              className="absolute left-2.5 top-2.5 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-white shadow-lg sm:left-3 sm:top-3 sm:px-3 sm:py-1.5 sm:text-[10px]"
               style={{ background: platform.gradient }}
             >
               {platform.label}
             </div>
 
-            <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
-              <Star size={12} fill="#F5C542" stroke="none" />
+            <div className="absolute right-2.5 top-2.5 flex items-center gap-1 rounded-full border border-white/15 bg-black/55 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur sm:right-3 sm:top-3 sm:px-3 sm:py-1.5 sm:text-xs">
+              <Star size={11} fill="#F5C542" stroke="none" className="sm:size-3" />
               {Number(movie.rating || 0).toFixed(1)}
             </div>
 
-
-            <div className="absolute bottom-4 left-4 right-4">
-              <p className="line-clamp-2 text-sm font-medium leading-5 text-white/85">{movie.description}</p>
+            <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4">
+              <p className="line-clamp-2 text-xs font-medium leading-4 text-white/80 sm:text-sm sm:leading-5">{movie.description}</p>
             </div>
-
           </div>
         </Link>
 
-        <div className="space-y-4 p-4">
+        <div className="space-y-3 p-3.5 sm:space-y-4 sm:p-4">
           <div>
-            <Link href={`/movie/${movie.uuid}`} className="font-playfair text-xl font-black leading-tight text-white transition group-hover:text-[#C4B5FD]">
+            <Link href={`/movie/${movie.uuid}`} className="font-playfair text-base font-black leading-tight text-white transition sm:text-xl md:group-hover:text-[#C4B5FD] line-clamp-1">
               {movie.title}
             </Link>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/45">
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45 sm:mt-2 sm:gap-2 sm:text-xs">
               <span>{movie.language}</span>
               <span>•</span>
               <span>{new Date(movie.release_date).getFullYear()}</span>
             </div>
-
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {movie.moods.slice(0, 3).map((mood) => (
-              <span key={mood} className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-white/70">
+          <div className="flex flex-wrap gap-1.5">
+            {movie.moods.slice(0, 2).map((mood) => (
+              <span key={mood} className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-semibold text-white/60 sm:px-3 sm:py-1 sm:text-xs">
                 {mood}
               </span>
             ))}
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-white/45">
-              <Calendar size={13} />
-              {movie.release_date}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1 text-[10px] font-semibold text-white/45 sm:gap-1.5 sm:text-xs">
+              <Calendar size={11} className="sm:size-[13px]" />
+              <span className="hidden sm:inline">{movie.release_date}</span>
+              <span className="inline sm:hidden">{new Date(movie.release_date).getFullYear()}</span>
             </div>
 
             <button
               type="button"
               onClick={() => setTrailerOpen(true)}
               suppressHydrationWarning
-              className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-black transition hover:bg-[#C4B5FD]"
+              className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-black transition hover:bg-[#C4B5FD] sm:gap-2 sm:px-3.5 sm:py-2 sm:text-xs"
             >
-              <Play size={13} fill="currentColor" />
+              <Play size={11} fill="currentColor" className="sm:size-[13px]" />
               Trailer
             </button>
           </div>

@@ -11,36 +11,34 @@ export default function TrendingPage() {
   const trendingMovies = getTrendingMovies(movies)
 
   return (
-    <div style={{padding:'120px 48px',color:'#111827',background:'#FAFAF7',minHeight:'100vh',position:'relative'}}>
+    <div className="py-24 px-4 sm:px-8 lg:px-12 text-[#111827] bg-[#FAFAF7] min-h-screen relative">
       <MouseGlow />
-      <div style={{ maxWidth: 1400, margin: '0 auto' }}>
-        <div style={{ marginBottom: 64 }}>
-          <Link href="/" style={{ color: '#7C3AED', fontSize: 14, fontWeight: 600, textDecoration: 'none', marginBottom: 24, display: 'inline-block' }}>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-12">
+          <Link href="/" className="color-[#7C3AED] hover:text-purple-700 text-xs sm:text-sm font-bold text-decoration-none mb-6 inline-block transition-colors">
             ← Back to Home
           </Link>
-          <div style={{ 
-            fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', 
-            color: '#7C3AED', marginBottom: 16,
-            fontFamily: 'Inter, sans-serif',
-          }}>{TRENDING_CONFIG.LABEL}</div>
-          <h1 className="font-playfair" style={{fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 900, letterSpacing: '-3px', color: '#111827', marginBottom: 16, lineHeight: 1}}>
+          <div className="text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#7C3AED] mb-3 font-sans">
+            {TRENDING_CONFIG.LABEL}
+          </div>
+          <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-[#111827] mb-4">
             {TRENDING_CONFIG.PAGE_TITLE}
           </h1>
-          <p style={{ color: '#6B7280', fontSize: 18, maxWidth: 600 }}>
+          <p className="text-neutral-500 text-sm sm:text-base max-w-xl">
             Curated list of the most watched and talked about movies this week.
           </p>
         </div>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 40 }}>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8">
           {trendingMovies.map((movie, i) => (
             <MovieCard key={movie.uuid} movie={movie} index={i} />
           ))}
 
           {trendingMovies.length === 0 && (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px 0', color: '#6B7280' }}>
-              <div style={{ fontSize: 48, marginBottom: 24 }}>🎬</div>
-              <div style={{ fontSize: 20, fontWeight: 600, color: '#111827' }}>{TRENDING_CONFIG.EMPTY_FALLBACK}</div>
-              <p style={{ marginTop: 8 }}>Check back later for new trending titles.</p>
+            <div className="col-span-full text-center py-20 text-neutral-400 text-sm font-sans">
+              <div className="text-5xl mb-4">🎬</div>
+              <div className="text-lg font-bold text-[#111827]">{TRENDING_CONFIG.EMPTY_FALLBACK}</div>
+              <p className="mt-2 text-xs">Check back later for new trending titles.</p>
             </div>
           )}
         </div>

@@ -38,23 +38,13 @@ export default function MoodCinemaSection({ title = "Mood Cinema", subtitle = "C
   return (
     <>
       {/* Mood Categories Grid Section */}
-      <section style={{ 
-        padding: '80px 48px', 
-        background: '#F3F4F6', 
-        borderTop: '1px solid rgba(124,58,237,0.1)', 
-        borderBottom: '1px solid rgba(124,58,237,0.1)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 32, marginBottom: 56 }}>
+      <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-12 bg-[#F3F4F6] border-y border-purple-100">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10 sm:mb-12">
           <div>
-            <div style={{ 
-              fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', 
-              color: '#7C3AED', marginBottom: 16,
-              fontFamily: 'Inter, sans-serif',
-            }}>{title}</div>
-            <h2 className="font-playfair" style={{ 
-              fontSize: 'clamp(32px, 4vw, 56px)', fontWeight: 900, letterSpacing: '-2px', lineHeight: 1.1,
-              color: '#111827',
-            }}>
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#7C3AED] mb-3 font-sans">
+              {title}
+            </div>
+            <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-[#111827]">
               {subtitle === "Cinema for Every Emotion" ? defaultSubtitle : (
                 (subtitle.includes('\n') || subtitle.includes('\\n')) ? (
                   subtitle.split(subtitle.includes('\n') ? '\n' : '\\n').map((line, i) => (
@@ -72,14 +62,14 @@ export default function MoodCinemaSection({ title = "Mood Cinema", subtitle = "C
         </div>
 
         {/* Mood Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16 }}>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 sm:gap-6">
           {moods.map(mood => (
             <TiltCard key={mood.name} intensity={15} className="block h-full w-full">
               <button suppressHydrationWarning onClick={() => handleMoodSelect(selectedMood === mood.name ? null : mood.name)} style={{
                 width: '100%',
                 background: selectedMood === mood.name ? 'rgba(124,58,237,0.08)' : '#FFFFFF',
                 border: selectedMood === mood.name ? '1px solid #7C3AED' : '1px solid rgba(124,58,237,0.1)',
-                borderRadius: 24, padding: '32px 16px',
+                borderRadius: 24, padding: '24px 12px sm:padding: 32px 16px',
                 textAlign: 'center', cursor: 'pointer',
                 transform: selectedMood === mood.name ? 'translateY(-8px)' : 'translateY(0)',
                 transition: 'all 0.4s cubic-bezier(0.25,0.46,0.45,0.94)',
@@ -103,19 +93,19 @@ export default function MoodCinemaSection({ title = "Mood Cinema", subtitle = "C
               }}
               >
                 <div style={{
-                  width: 64, height: 64, borderRadius: 20,
+                  width: 52, height: 52, borderRadius: 16,
                   background: selectedMood === mood.name 
                     ? 'var(--purple-gradient)'
                     : 'rgba(124,58,237,0.05)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 28, margin: '0 auto 16px',
+                  display: 'flex', alignItems: 'center', justifyCenter: 'center',
+                  fontSize: 24, margin: '0 auto 12px',
                   transition: 'all 0.3s',
                   boxShadow: selectedMood === mood.name 
                     ? 'var(--soft-shadow)' 
                     : 'none',
-                }}>{mood.emoji}</div>
+                }} className="flex items-center justify-center">{mood.emoji}</div>
                 <div style={{ 
-                  fontSize: 13, fontWeight: 700, 
+                  fontSize: 12, fontWeight: 700, 
                   color: selectedMood === mood.name ? '#7C3AED' : '#4B5563', 
                   transition: 'color 0.2s',
                   fontFamily: 'Inter, sans-serif',
@@ -132,72 +122,36 @@ export default function MoodCinemaSection({ title = "Mood Cinema", subtitle = "C
       {/* Mood Recommendations Results Section */}
       <div ref={resultsRef} />
       {selectedMood && (
-        <section style={{ 
-          padding: '80px 48px', 
-          background: '#FFFFFF',
-          borderTop: '1px solid rgba(124,58,237,0.1)',
-        }}>
-          <div style={{ marginBottom: 48 }}>
-            <div style={{ 
-              fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', 
-              color: '#7C3AED', marginBottom: 24,
-              fontFamily: 'Inter, sans-serif',
-            }}>Mood Recommendations</div>
-            <h2 className="font-playfair" style={{ 
-              fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, letterSpacing: '-2px', lineHeight: 1.1,
-              color: '#111827', marginBottom: 32,
-            }}>
+        <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-12 bg-white border-t border-purple-100">
+          <div className="mb-10 sm:mb-12">
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#7C3AED] mb-3 font-sans">
+              Mood Recommendations
+            </div>
+            <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight text-[#111827]">
               {selectedMood} Movies
               <br />
-              <span style={{ color: '#4B5563' }}>For Your Vibe</span>
+              <span className="text-[#4B5563]">For Your Vibe</span>
             </h2>
           </div>
 
           {moodRecommendations.length > 0 ? (
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', 
-              gap: 32,
-            }}>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8">
               {moodRecommendations.map((movie, i) => (
                 <MovieCard key={movie.uuid} movie={movie} index={i} />
-
               ))}
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: '#6B7280' }}>
-               <div style={{ fontSize: 48, marginBottom: 16 }}>🎬</div>
-               <div style={{ fontSize: 20, fontWeight: 600, color: '#111827' }}>No movies found for this mood</div>
-               <p style={{ marginTop: 8 }}>Try selecting another emotion to discover more cinema.</p>
+            <div className="text-center py-16 text-neutral-500 font-sans">
+               <div className="text-5xl mb-4">🎬</div>
+               <div className="text-lg font-bold text-[#111827]">No movies found for this mood</div>
+               <p className="mt-2 text-sm">Try selecting another emotion to discover more cinema.</p>
             </div>
           )}
 
-          <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={() => setSelectedMood(null)} style={{
-              background: 'transparent',
-              color: '#7C3AED',
-              border: '1px solid #7C3AED',
-              padding: '16px 32px',
-              borderRadius: 100,
-              fontSize: 14, fontWeight: 600,
-              textDecoration: 'none',
-              letterSpacing: '1px',
-              fontFamily: 'Inter, sans-serif',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(124,58,237,0.08)'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-            >
+          <div className="text-center mt-12">
+            <button onClick={() => setSelectedMood(null)} className="bg-transparent text-[#7C3AED] border border-[#7C3AED] hover:bg-purple-50/50 py-3.5 px-8 sm:py-4 sm:px-10 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
               Clear Mood Filter
-              <span style={{ fontSize: 16, marginLeft: 8 }}>x</span>
+              <span className="text-sm">x</span>
             </button>
           </div>
         </section>
