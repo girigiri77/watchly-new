@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useMemo, useState } from "react"
 import MovieCard from "@/components/MovieCard"
+import MoodCinemaSection from "@/components/MoodCinemaSection"
 import { useSyncedMoviesFromAdmin } from "@/hooks/useSyncedMoviesFromAdmin"
 import type { MovieCurated } from "@/types/movie"
 
@@ -33,15 +34,12 @@ function ReleasesContent() {
     [movies],
   )
 
-
   const newReleases = useMemo(() => movies.filter((m) => m.featured), [movies])
-
 
   const allSorted = useMemo(
     () => [...movies].sort((a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime() || a.title.localeCompare(b.title)),
     [movies],
   )
-
 
   const list: MovieCurated[] = tab === "week" ? thisWeek : tab === "latest" ? newReleases : allSorted
 
@@ -56,12 +54,12 @@ function ReleasesContent() {
       {/* Hero: own stacking context + padding so nothing sits under the fixed navbar */}
       <header className="relative z-0 border-b border-[rgba(124,58,237,0.1)] bg-gradient-to-b from-white to-[#FAFAF7] px-4 pb-10 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12">
         <div className="mx-auto max-w-7xl">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]">Curated from admin</p>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]">Fresh Discoveries</p>
           <h1 className="mt-3 font-playfair text-4xl font-black leading-[1.05] tracking-tight text-[#111827] sm:text-5xl lg:text-6xl">
             OTT Releases
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#4B5563] sm:text-lg">
-            Weekly queue, new-release flags, and your full library — synced from the admin panel.
+            Discover this week's digital premieres, trending theatrical releases, and our complete handpicked movie library.
           </p>
         </div>
       </header>
@@ -100,20 +98,66 @@ function ReleasesContent() {
         </div>
 
         {list.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center shadow-sm sm:py-20">
-            <div className="text-5xl">🎬</div>
-            <p className="mt-4 text-lg font-semibold text-[#111827]">Nothing in this list yet</p>
-            <p className="mx-auto mt-2 max-w-md text-sm text-[#6B7280]">
-              In admin, turn on <strong className="text-[#111827]">Weekly OTT</strong> or{" "}
-              <strong className="text-[#111827]">Latest Movie</strong>, or add titles to your library.
-            </p>
-            <Link
-              href="/admin/login"
-              suppressHydrationWarning
-              className="mt-8 inline-flex rounded-full bg-[#7C3AED] px-6 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-[0_4px_16px_rgba(124,58,237,0.35)] transition hover:bg-[#6D28D9]"
-            >
-              Open admin
-            </Link>
+          <div className="space-y-16 py-12">
+            {/* Empty State Centered Card */}
+            <div className="mx-auto max-w-xl rounded-3xl border border-[rgba(124,58,237,0.08)] bg-white p-8 text-center shadow-[0_24px_70px_rgba(0,0,0,0.03)] sm:p-12">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-50 text-[#7C3AED] shadow-sm">
+                <span className="text-4xl" role="img" aria-label="movie icon">🎬</span>
+              </div>
+              <h2 className="mt-6 font-playfair text-2xl font-black text-[#111827] sm:text-3xl">
+                No new OTT releases this week
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-[#4B5563] sm:text-base">
+                We’re updating the latest OTT and theatrical releases. Check back soon for new movies, trailers, reviews, and platform availability.
+              </p>
+              <div className="mt-8 flex justify-center gap-4">
+                <button
+                  type="button"
+                  suppressHydrationWarning
+                  onClick={() => {
+                    const el = document.getElementById("trending-section")
+                    el?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-8 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-[0_8px_30px_rgba(124,58,237,0.3)] transition-all hover:bg-[#6D28D9] hover:shadow-[0_8px_35px_rgba(124,58,237,0.45)] hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  Explore Cinema
+                </button>
+              </div>
+            </div>
+
+            {/* Trending Movies Section */}
+            <section id="trending-section" className="border-t border-[rgba(124,58,237,0.1)] pt-16">
+              <div className="mb-8 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">Trending Now</span>
+                  <h3 className="mt-2 font-playfair text-3xl font-black text-[#111827] sm:text-4xl">
+                    Most Popular Choices
+                  </h3>
+                </div>
+              </div>
+
+              {movies.filter(m => m.trending).length > 0 ? (
+                <div
+                  className="grid gap-8"
+                  style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
+                >
+                  {movies
+                    .filter((m) => m.trending)
+                    .sort((a, b) => (a.mood_order ?? 999) - (b.mood_order ?? 999))
+                    .slice(0, 5)
+                    .map((movie, i) => (
+                      <MovieCard key={movie.uuid} movie={movie} index={i} />
+                    ))}
+                </div>
+              ) : (
+                <p className="text-sm text-[#6B7280]">No trending titles found.</p>
+              )}
+            </section>
+
+            {/* Mood Cinema Recommendations Section */}
+            <div className="border-t border-[rgba(124,58,237,0.1)] pt-8 -mx-4 sm:-mx-8 lg:-mx-12">
+              <MoodCinemaSection title="Discovery Recommendations" subtitle="Find Movies For\nEvery Emotion" />
+            </div>
           </div>
         ) : (
           <div
