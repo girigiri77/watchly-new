@@ -98,42 +98,27 @@ function ReleasesContent() {
         </div>
 
         {list.length === 0 ? (
-          <div className="space-y-16 py-12">
-            {/* Empty State Centered Card */}
-            <div className="mx-auto max-w-xl rounded-3xl border border-[rgba(124,58,237,0.08)] bg-white p-8 text-center shadow-[0_24px_70px_rgba(0,0,0,0.03)] sm:p-12">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-50 text-[#7C3AED] shadow-sm">
-                <span className="text-4xl" role="img" aria-label="movie icon">🎬</span>
+          <div className="py-12">
+            {/* Elegant Minimal Empty State Card */}
+            <div className="mx-auto max-w-[460px] rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-8">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-violet-50 text-[#7C3AED]">
+                <span className="text-2xl" role="img" aria-label="movie icon">🎬</span>
               </div>
-              <h2 className="mt-6 font-playfair text-2xl font-black text-[#111827] sm:text-3xl">
-                No new OTT releases this week
+              <h2 className="mt-4 font-playfair text-xl font-bold text-[#111827]">
+                No OTT releases yet
               </h2>
-              <p className="mt-4 text-sm leading-relaxed text-[#4B5563] sm:text-base">
-                We’re updating the latest OTT and theatrical releases. Check back soon for new movies, trailers, reviews, and platform availability.
+              <p className="mt-2 text-xs leading-relaxed text-[#6B7280]">
+                Check back this Friday for the latest OTT and theatrical releases.
               </p>
-              <div className="mt-8 flex justify-center gap-4">
-                <button
-                  type="button"
-                  suppressHydrationWarning
-                  onClick={() => {
-                    const el = document.getElementById("trending-section")
-                    el?.scrollIntoView({ behavior: "smooth", block: "start" })
-                  }}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-8 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-[0_8px_30px_rgba(124,58,237,0.3)] transition-all hover:bg-[#6D28D9] hover:shadow-[0_8px_35px_rgba(124,58,237,0.45)] hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  Explore Cinema
-                </button>
-              </div>
             </div>
 
-            {/* Trending Movies Section */}
-            <section id="trending-section" className="border-t border-[rgba(124,58,237,0.1)] pt-16">
-              <div className="mb-8 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">Trending Now</span>
-                  <h3 className="mt-2 font-playfair text-3xl font-black text-[#111827] sm:text-4xl">
-                    Most Popular Choices
-                  </h3>
-                </div>
+            {/* Trending Movies Section - Pushed lower with proper spacing */}
+            <section id="trending-section" className="mt-28 border-t border-gray-200/80 pt-16">
+              <div className="mb-8">
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">Trending Now</span>
+                <h3 className="mt-2 font-playfair text-3xl font-black text-[#111827] sm:text-4xl">
+                  Most Popular Choices
+                </h3>
               </div>
 
               {movies.filter(m => m.trending).length > 0 ? (
@@ -155,7 +140,7 @@ function ReleasesContent() {
             </section>
 
             {/* Mood Cinema Recommendations Section */}
-            <div className="border-t border-[rgba(124,58,237,0.1)] pt-8 -mx-4 sm:-mx-8 lg:-mx-12">
+            <div className="mt-20 border-t border-gray-200/80 pt-16 -mx-4 sm:-mx-8 lg:-mx-12">
               <MoodCinemaSection title="Discovery Recommendations" subtitle="Find Movies For\nEvery Emotion" />
             </div>
           </div>
