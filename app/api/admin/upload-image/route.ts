@@ -1,9 +1,8 @@
 import { ADMIN_SESSION_COOKIE, verifySessionToken } from "@/lib/admin-session"
 import { randomBytes } from "crypto"
-import { mkdir, writeFile } from "fs/promises"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
-import path from "path"
+import { supabase } from "@/lib/supabase"
 
 export const runtime = "nodejs"
 
@@ -62,12 +61,29 @@ export async function POST(request: Request) {
   const unique = randomBytes(5).toString("hex")
   const filename = `${slug}-${kind}-${Date.now()}-${unique}${ext}`
 
-  const uploadsDir = path.join(process.cwd(), "public", "uploads")
-  await mkdir(uploadsDir, { recursive: true })
+  try {
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
 
-  const buffer = Buffer.from(await file.arrayBuffer())
-  await writeFile(path.join(uploadsDir, filename), buffer)
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("posters")
+      .upload(filename, buffer, {
+        contentType: mime,
+        upsert: true,
+      })
 
-  const publicPath = `/uploads/${filename}`
-  return NextResponse.json({ path: publicPath })
+    if (uploadError) {
+      console.error("Supabase Storage Upload Error:", uploadError)
+      return NextResponse.json({ error: `Storage upload failed: ${uploadError.message}` }, { status: 500 })
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from("posters")
+      .getPublicUrl(filename)
+
+    return NextResponse.json({ path: publicUrl })
+  } catch (err: any) {
+    console.error("Upload error caught:", err)
+    return NextResponse.json({ error: err.message || "Internal server error during upload" }, { status: 500 })
+  }
 }

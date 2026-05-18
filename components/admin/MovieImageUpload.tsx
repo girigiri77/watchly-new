@@ -20,6 +20,7 @@ export function MovieImageUpload({ label, kind, slug, storedPath, onPathChange, 
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const [localPreview, setLocalPreview] = useState<string | null>(null)
 
@@ -34,12 +35,14 @@ export function MovieImageUpload({ label, kind, slug, storedPath, onPathChange, 
   const runUpload = useCallback(
     async (file: File, objectPreviewUrl: string | null) => {
       setError(null)
+      setSuccess(null)
       setUploading(true)
       try {
         const path = await uploadAdminMovieImage(file, kind, slug)
         if (objectPreviewUrl) URL.revokeObjectURL(objectPreviewUrl)
         setLocalPreview(null)
         onPathChange(path)
+        setSuccess("Uploaded to Supabase Storage successfully!")
       } catch (e) {
         if (objectPreviewUrl) URL.revokeObjectURL(objectPreviewUrl)
         setLocalPreview(null)
@@ -55,6 +58,8 @@ export function MovieImageUpload({ label, kind, slug, storedPath, onPathChange, 
     const file = event.target.files?.[0]
     event.target.value = ""
     if (!file) return
+    setError(null)
+    setSuccess(null)
     if (localPreview) URL.revokeObjectURL(localPreview)
     const objectPreviewUrl = URL.createObjectURL(file)
     setLocalPreview(objectPreviewUrl)
@@ -69,6 +74,8 @@ export function MovieImageUpload({ label, kind, slug, storedPath, onPathChange, 
       setError("Drop a single image file")
       return
     }
+    setError(null)
+    setSuccess(null)
     if (localPreview) URL.revokeObjectURL(localPreview)
     const objectPreviewUrl = URL.createObjectURL(file)
     setLocalPreview(objectPreviewUrl)
@@ -77,6 +84,7 @@ export function MovieImageUpload({ label, kind, slug, storedPath, onPathChange, 
 
   const clearCustom = () => {
     setError(null)
+    setSuccess(null)
     if (localPreview) URL.revokeObjectURL(localPreview)
     setLocalPreview(null)
     onPathChange("")
@@ -156,10 +164,11 @@ export function MovieImageUpload({ label, kind, slug, storedPath, onPathChange, 
       </div>
 
       <p className="mt-2 text-[11px] leading-relaxed text-[#9CA3AF]">
-        Overrides the {fallbackLabel}. Saved under <code className="rounded bg-gray-100 px-1">/public/uploads</code> — swap the API handler later for CDN/S3/Supabase/Cloudinary.
+        Overrides the {fallbackLabel}. Uploaded directly to Supabase Storage bucket <code className="rounded bg-gray-100 px-1">posters</code>.
       </p>
 
       {error ? <p className="mt-2 text-xs font-medium text-red-600">{error}</p> : null}
+      {success ? <p className="mt-2 text-xs font-medium text-green-600">{success}</p> : null}
     </div>
   )
 }
