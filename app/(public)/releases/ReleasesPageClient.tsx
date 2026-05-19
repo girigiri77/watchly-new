@@ -4,7 +4,6 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useMemo, useState } from "react"
 import MovieCard from "@/components/MovieCard"
-import MoodCinemaSection from "@/components/MoodCinemaSection"
 import { useSyncedMoviesFromAdmin } from "@/hooks/useSyncedMoviesFromAdmin"
 import type { MovieCurated } from "@/types/movie"
 
@@ -98,47 +97,18 @@ function ReleasesContent() {
         </div>
 
         {list.length === 0 ? (
-          <div className="py-12">
+          <div className="py-16 sm:py-24 flex items-center justify-center">
             {/* Elegant Minimal Empty State Card */}
-            <div className="mx-auto max-w-[460px] rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-8">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-violet-50 text-[#7C3AED]">
+            <div className="w-full max-w-[460px] rounded-2xl border border-gray-200/60 bg-white p-8 text-center shadow-[0_8px_30px_rgb(0,0,0,0.03)] sm:p-10">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-violet-50 text-[#7C3AED] mb-4">
                 <span className="text-2xl" role="img" aria-label="movie icon">🎬</span>
               </div>
-              <h2 className="mt-4 font-playfair text-xl font-bold text-[#111827]">
-                No OTT releases yet
+              <h2 className="font-playfair text-xl sm:text-2xl font-bold text-[#111827]">
+                No new releases this week
               </h2>
-              <p className="mt-2 text-xs leading-relaxed text-[#6B7280]">
+              <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-[#6B7280]">
                 Check back this Friday for the latest OTT and theatrical releases.
               </p>
-            </div>
-
-            {/* Trending Movies Section - Pushed lower with proper spacing */}
-            <section id="trending-section" className="mt-28 border-t border-gray-200/80 pt-16">
-              <div className="mb-8">
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">Trending Now</span>
-                <h3 className="mt-2 font-playfair text-3xl font-black text-[#111827] sm:text-4xl">
-                  Most Popular Choices
-                </h3>
-              </div>
-
-              {movies.filter(m => m.trending).length > 0 ? (
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8">
-                  {movies
-                    .filter((m) => m.trending)
-                    .sort((a, b) => (a.mood_order ?? 999) - (b.mood_order ?? 999))
-                    .slice(0, 5)
-                    .map((movie, i) => (
-                      <MovieCard key={movie.uuid} movie={movie} index={i} />
-                    ))}
-                </div>
-              ) : (
-                <p className="text-sm text-[#6B7280]">No trending titles found.</p>
-              )}
-            </section>
-
-            {/* Mood Cinema Recommendations Section */}
-            <div className="mt-20 border-t border-gray-200/80 pt-16 -mx-4 sm:-mx-8 lg:-mx-12">
-              <MoodCinemaSection title="Discovery Recommendations" subtitle="Find Movies For\nEvery Emotion" />
             </div>
           </div>
         ) : (
