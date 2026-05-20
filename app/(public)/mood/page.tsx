@@ -1,16 +1,13 @@
 'use client'
+
 import MoodCinemaSection from '@/components/MoodCinemaSection'
 import MouseGlow from '@/components/effects/MouseGlow'
 
 export default function MoodPage() {
   return (
-    <div style={{ background: '#FAFAF7', minHeight: '100vh', position: 'relative' }}>
+    <div className="relative min-h-screen overflow-x-hidden bg-[#FAFAF7]">
       <MouseGlow />
-      <div style={{ paddingTop: 100 }}>
-        <MoodCinemaSection 
-          title="Mood Cinema" 
-        />
-      </div>
+      <MoodCinemaSection title="Mood Cinema" />
     </div>
   )
-}
+}

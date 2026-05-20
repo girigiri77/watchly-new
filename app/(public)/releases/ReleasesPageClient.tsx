@@ -49,26 +49,24 @@ function ReleasesContent() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#FAFAF7] pb-24 text-[#111827]">
-      {/* Hero: own stacking context + padding so nothing sits under the fixed navbar */}
-      <header className="relative z-0 border-b border-[rgba(124,58,237,0.1)] bg-gradient-to-b from-white to-[#FAFAF7] px-4 pb-10 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12">
+    <div className="min-h-screen overflow-x-hidden bg-[#FAFAF7] pb-16 text-[#111827] sm:pb-24">
+      <header className="relative z-0 border-b border-[rgba(124,58,237,0.1)] bg-gradient-to-b from-white to-[#FAFAF7] px-4 pb-8 pt-4 sm:px-6 sm:pb-10 sm:pt-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]">Fresh Discoveries</p>
-          <h1 className="mt-3 font-playfair text-4xl font-black leading-[1.05] tracking-tight text-[#111827] sm:text-5xl lg:text-6xl">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7C3AED] sm:text-xs">Fresh Discoveries</p>
+          <h1 className="mt-2 font-playfair text-2xl font-black leading-[1.05] tracking-tight text-[#111827] sm:mt-3 sm:text-4xl md:text-5xl lg:text-6xl">
             OTT Releases
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#4B5563] sm:text-lg">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#4B5563] sm:mt-4 sm:text-base md:text-lg">
             Discover this week's digital premieres, trending theatrical releases, and our complete handpicked movie library.
           </p>
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12">
-        {/* Tabs on their own row with scroll on small screens */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div
           role="tablist"
           aria-label="Release lists"
-          className="flex flex-wrap gap-2 border-b border-gray-200/90 py-6"
+          className="-mx-1 flex gap-2 overflow-x-auto border-b border-gray-200/90 px-1 py-4 hide-scrollbar sm:flex-wrap sm:overflow-visible sm:py-6"
         >
           {tabs.map((t) => (
             <button
@@ -112,7 +110,7 @@ function ReleasesContent() {
             </div>
           </div>
         ) : (
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8 pb-8 sm:mt-10">
+          <div className="movie-grid mt-6 pb-6 sm:mt-8 sm:pb-8">
             {list.map((movie, i) => (
               <MovieCard key={movie.uuid} movie={movie} index={i} />
             ))}

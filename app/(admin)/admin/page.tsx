@@ -558,7 +558,7 @@ export default function AdminPage() {
               <button suppressHydrationWarning
                 type="button"
                 onClick={openCreate}
-                className="flex items-center gap-2 rounded-full bg-[#7C3AED] px-3 py-2 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(124,58,237,0.35)] transition hover:bg-[#6D28D9] sm:px-4"
+                className="hidden items-center gap-2 rounded-full bg-[#7C3AED] px-3 py-2 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(124,58,237,0.35)] transition hover:bg-[#6D28D9] sm:flex sm:px-4"
               >
                 <Plus size={16} />
                 Add Movie
@@ -579,7 +579,7 @@ export default function AdminPage() {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
             {activeSection === "dashboard" && (
               <div className="space-y-6">
                 {/* Stats Cards */}
@@ -688,23 +688,23 @@ export default function AdminPage() {
             )}
 
             {activeSection === "movies" && (
-              <div className="rounded-xl border border-gray-200 bg-white shadow-[var(--card-shadow)] p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-semibold">Movie Library</h2>
-                  <div className="flex gap-2">
-                    <select suppressHydrationWarning value={platformFilter} onChange={(event) => setPlatformFilter(event.target.value as OTTPlatform | "All")} className="rounded-lg border border-gray-200 bg-[#FAFAF7] px-3 py-2 text-sm text-[#111827] outline-none focus:border-[#7C3AED]">
+              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-[var(--card-shadow)] sm:p-6">
+                <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+                  <h2 className="text-base font-semibold sm:text-lg">Movie Library</h2>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <select suppressHydrationWarning value={platformFilter} onChange={(event) => setPlatformFilter(event.target.value as OTTPlatform | "All")} className="w-full rounded-lg border border-gray-200 bg-[#FAFAF7] px-3 py-2 text-sm text-[#111827] outline-none focus:border-[#7C3AED] sm:w-auto">
                       <option>All Platforms</option>
                       {OTT_PLATFORMS.map((platform) => <option key={platform}>{platform}</option>)}
                     </select>
-                    <select suppressHydrationWarning value={moodFilter} onChange={(event) => setMoodFilter(event.target.value as Mood | "All")} className="rounded-lg border border-gray-200 bg-[#FAFAF7] px-3 py-2 text-sm text-[#111827] outline-none focus:border-[#7C3AED]">
+                    <select suppressHydrationWarning value={moodFilter} onChange={(event) => setMoodFilter(event.target.value as Mood | "All")} className="w-full rounded-lg border border-gray-200 bg-[#FAFAF7] px-3 py-2 text-sm text-[#111827] outline-none focus:border-[#7C3AED] sm:w-auto">
                       <option>All Moods</option>
                       {MOODS.map((mood) => <option key={mood}>{mood}</option>)}
                     </select>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                  <table className="w-full min-w-[520px] text-sm">
                     <thead className="text-xs uppercase tracking-wider text-[#6B7280]">
                       <tr>
                         <th className="text-left py-3 px-4">Movie</th>
@@ -804,8 +804,8 @@ export default function AdminPage() {
                   <h2 className="text-lg font-semibold">Latest Movies</h2>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                  <table className="w-full min-w-[400px] text-sm">
                     <thead className="text-xs uppercase tracking-wider text-[#6B7280]">
                       <tr>
                         <th className="text-left py-3 px-4">Movie</th>
@@ -1033,6 +1033,16 @@ export default function AdminPage() {
         }}
       />
 
+      <button
+        type="button"
+        onClick={openCreate}
+        aria-label="Add movie"
+        className="fixed bottom-6 right-4 z-[60] flex h-14 w-14 items-center justify-center rounded-full bg-[#7C3AED] text-white shadow-[0_8px_32px_rgba(124,58,237,0.45)] transition active:scale-95 hover:bg-[#6D28D9] lg:hidden"
+        style={{ marginBottom: 'max(0px, env(safe-area-inset-bottom))' }}
+        suppressHydrationWarning
+      >
+        <Plus size={22} />
+      </button>
     </main>
   )
 }

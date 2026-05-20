@@ -372,8 +372,8 @@ export default function TeluguPicksAdminPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[900px] text-sm">
+                  <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                    <table className="w-full min-w-[640px] text-sm md:min-w-[900px]">
                       <thead className="text-xs uppercase tracking-wider text-[#6B7280]">
                         <tr>
                           <th className="px-2 py-3 text-left">

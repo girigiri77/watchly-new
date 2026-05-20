@@ -38,8 +38,8 @@ function AdminLoginForm() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#FAFAF7] px-6 text-[#111827]">
-      <div className="mx-auto w-full max-w-md rounded-2xl border border-[rgba(124,58,237,0.12)] bg-white p-8 shadow-[0_24px_70px_rgba(0,0,0,0.08)]">
+    <main className="flex min-h-screen items-center justify-center bg-[#FAFAF7] px-4 py-8 text-[#111827] sm:px-6">
+      <div className="mx-auto w-full max-w-md rounded-2xl border border-[rgba(124,58,237,0.12)] bg-white p-6 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-8">
         <Shield className="mb-5 text-[#7C3AED]" size={34} aria-hidden />
         <h1 className="font-playfair text-2xl font-black text-[#111827]">Editorial Admin</h1>
         <p className="mt-3 text-sm leading-6 text-[#4B5563]">

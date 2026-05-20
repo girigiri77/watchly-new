@@ -4,7 +4,9 @@
 
 import Link from "next/link"
 import { Calendar, ExternalLink, Play, Star } from "lucide-react"
-import { startTransition, useMemo, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { memo, useMemo, useState } from "react"
+import PosterImage from "@/components/ui/PosterImage"
 import type { TeluguPick } from "@/types/telugu-pick"
 
 const platformStyle: Record<string, { label: string; gradient: string }> = {
@@ -22,8 +24,7 @@ function getYouTubeEmbedUrl(url: string) {
   return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0` : null
 }
 
-export default function TeluguPickCard({ pick }: { pick: TeluguPick }) {
-  const [imageFailed, setImageFailed] = useState(false)
+function TeluguPickCardInner({ pick }: { pick: TeluguPick }) {
   const [trailerOpen, setTrailerOpen] = useState(false)
 
   const platform = platformStyle[pick.ott] ?? {
@@ -41,37 +42,20 @@ export default function TeluguPickCard({ pick }: { pick: TeluguPick }) {
 
   return (
     <>
-      <article className="group overflow-hidden rounded-[20px] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.22)] transition-transform duration-300 ease-out will-change-transform hover:-translate-y-2">
+      <motion.article
+        whileTap={{ scale: 0.97 }}
+        transition={{ type: "spring", stiffness: 420, damping: 28 }}
+        className="tap-scale group h-full overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0f0f12] cinematic-card-shadow sm:rounded-[18px] md:hover:cinematic-glow md:hover:-translate-y-1.5"
+      >
         <Link href={detailHref} className="block">
-          <div className="relative aspect-[2/3] overflow-hidden bg-[#191919]">
-            {posterToUse && !imageFailed ? (
-              <img
-                key={posterToUse}
-                src={posterToUse}
-                alt={pick.title}
-                onError={() => {
-                  startTransition(() => setImageFailed(true))
-                }}
-                className="h-full w-full object-cover transition duration-700 group-hover:scale-110 group-hover:brightness-110"
-              />
-            ) : (
-              <div
-                className="flex h-full flex-col items-center justify-center px-6 text-center"
-                style={{
-                  background: `linear-gradient(160deg, ${pick.gradientAccent}33, #0B0B0F 75%)`,
-                }}
-              >
-                <div className="mb-5 text-5xl">🎬</div>
-                <div className="font-playfair text-xl font-black text-white">{pick.title}</div>
-                <div className="mt-3 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">{pick.language}</div>
-              </div>
-            )}
+          <div className="relative aspect-[2/3] overflow-hidden bg-[#141414]">
+            <PosterImage src={posterToUse} alt={pick.title} />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
 
-            <div className="absolute left-3 top-3 flex items-center gap-2">
+            <div className="absolute left-2.5 top-2.5 flex flex-wrap items-center gap-1 sm:left-3 sm:top-3 sm:gap-2">
               <div
-                className="rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-lg"
+                className="rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-white shadow-lg sm:px-3 sm:py-1.5 sm:text-[10px]"
                 style={{ background: platform.gradient }}
               >
                 {platform.label}
@@ -97,9 +81,9 @@ export default function TeluguPickCard({ pick }: { pick: TeluguPick }) {
           </div>
         </Link>
 
-        <div className="space-y-4 p-4">
+        <div className="space-y-3 p-3 sm:space-y-4 sm:p-4">
           <div>
-            <Link href={detailHref} className="font-playfair text-xl font-black leading-tight text-white transition group-hover:text-[#C4B5FD]">
+            <Link href={detailHref} className="font-playfair line-clamp-1 text-base font-black leading-tight text-white transition sm:text-xl md:group-hover:text-[#C4B5FD]">
               {pick.title}
             </Link>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/45">
@@ -135,14 +119,15 @@ export default function TeluguPickCard({ pick }: { pick: TeluguPick }) {
             </button>
           </div>
         </div>
-      </article>
+      </motion.article>
 
+      <AnimatePresence>
       {trailerOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md" role="dialog" aria-modal="true">
-          <div className="w-full max-w-4xl overflow-hidden rounded-2xl border border-white/10 bg-[#0B0B0F] shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-              <div>
-                <div className="font-playfair text-2xl font-black text-white">{pick.title}</div>
+        <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/80 p-0 backdrop-blur-md sm:items-center sm:p-4" role="dialog" aria-modal="true">
+          <div className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-white/10 bg-[#0B0B0F] shadow-2xl sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl">
+            <div className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5 sm:py-4">
+              <div className="min-w-0 flex-1">
+                <div className="font-playfair truncate text-lg font-black text-white sm:text-2xl">{pick.title}</div>
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">Trailer</div>
               </div>
               <button
@@ -180,6 +165,9 @@ export default function TeluguPickCard({ pick }: { pick: TeluguPick }) {
           </div>
         </div>
       )}
+      </AnimatePresence>
     </>
   )
 }
+
+export default memo(TeluguPickCardInner)

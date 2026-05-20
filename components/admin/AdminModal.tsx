@@ -28,7 +28,7 @@ export default function AdminModal({ isOpen, onClose, title, children, maxWidth 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-8">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4 md:p-8">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -40,15 +40,15 @@ export default function AdminModal({ isOpen, onClose, title, children, maxWidth 
 
           {/* Modal Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-            className={`relative flex w-full ${maxWidth} max-h-full flex-col overflow-hidden rounded-[24px] border border-white/10 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.3)]`}
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: "spring", stiffness: 360, damping: 32 }}
+            className={`relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[24px] border border-white/10 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.3)] sm:max-h-[90vh] sm:rounded-[24px] ${maxWidth}`}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
-              <h2 className="text-xl font-bold tracking-tight text-[#111827]">{title}</h2>
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-4 sm:px-6 sm:py-5">
+              <h2 className="truncate pr-2 text-lg font-bold tracking-tight text-[#111827] sm:text-xl">{title}</h2>
               <button
                 type="button"
                 onClick={onClose}
@@ -59,7 +59,7 @@ export default function AdminModal({ isOpen, onClose, title, children, maxWidth 
             </div>
 
             {/* Scrollable Content Area */}
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar sm:p-6">
               {children}
             </div>
           </motion.div>

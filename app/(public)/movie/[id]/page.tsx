@@ -78,10 +78,10 @@ export default function MoviePage() {
       <div className="absolute inset-0 z-0 bg-black/70 backdrop-blur-[2px]" />
 
       {/* Centered hero */}
-      <section className="relative z-10 flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center px-4 pb-20 pt-24 text-center sm:px-6 lg:px-8">
+      <section className="relative z-10 flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center px-4 pb-12 pt-6 text-center sm:min-h-[calc(100vh-5rem)] sm:px-6 sm:pb-16 sm:pt-8 lg:px-8">
         {/* Poster */}
-        <div className="mb-10 flex flex-col items-center">
-          <div className="relative w-[260px] h-[390px] rounded-[28px] bg-black/40 shadow-[0_0_60px_rgba(0,0,0,0.8)] ring-2 ring-white/5 sm:w-[300px] sm:h-[440px] md:w-[320px] md:h-[480px]">
+        <div className="mb-6 flex flex-col items-center sm:mb-10">
+          <div className="relative h-[300px] w-[200px] rounded-2xl bg-black/40 shadow-[0_0_60px_rgba(0,0,0,0.8)] ring-2 ring-white/5 sm:h-[390px] sm:w-[260px] sm:rounded-[28px] md:h-[440px] md:w-[300px] lg:h-[480px] lg:w-[320px]">
             <div className="absolute -inset-1 rounded-[32px] bg-gradient-to-b from-white/10 via-transparent to-[#7C3AED]/25 opacity-60 blur-lg" />
             <div className="relative h-full w-full overflow-hidden rounded-[32px] shadow-[0_0_80px_rgba(124,58,237,0.35)] transition-transform duration-500 hover:-translate-y-2 hover:shadow-[0_0_120px_rgba(124,58,237,0.6)]">
               {!posterFailed ? (
@@ -119,15 +119,12 @@ export default function MoviePage() {
         </div>
 
         {/* Text stack */}
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
-          <h1 className="font-playfair text-4xl font-black tracking-tight text-white sm:text-5xl md:text-6xl">
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 px-1 sm:gap-6">
+          <h1 className="font-playfair text-2xl font-black tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
             <MovieTitle title={movie.title} />
           </h1>
 
-          {/* Tagline removed from schema */}
-
-
-          <p className="max-w-3xl text-balance text-xl leading-relaxed text-zinc-300">
+          <p className="max-w-3xl text-balance text-sm leading-relaxed text-zinc-300 sm:text-base md:text-lg lg:text-xl">
             {movie.description}
           </p>
 
@@ -157,20 +154,19 @@ export default function MoviePage() {
           </div>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-6 flex w-full max-w-xs flex-col items-stretch gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
             <a
               href={movie.trailer}
-
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#7C3AED] via-[#7C3AED] to-[#6D28D9] px-8 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white shadow-[0_18px_60px_rgba(124,58,237,0.6)] transition hover:brightness-110 hover:shadow-[0_22px_70px_rgba(124,58,237,0.85)]"
+              className="touch-target inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#7C3AED] via-[#7C3AED] to-[#6D28D9] px-6 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-[0_18px_60px_rgba(124,58,237,0.6)] transition hover:brightness-110 sm:px-8 sm:text-sm sm:tracking-[0.22em]"
             >
-              <Play size={18} fill="currentColor" className="text-white" />
+              <Play size={16} fill="currentColor" className="text-white sm:size-[18px]" />
               Watch trailer
             </a>
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white shadow-[0_12px_45px_rgba(0,0,0,0.7)] transition hover:border-white/40 hover:bg-white/10"
+              className="touch-target inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:border-white/40 hover:bg-white/10 sm:px-8 sm:text-sm sm:tracking-[0.22em]"
             >
               Watch on {platform?.label ?? movie.ott.toUpperCase()}
             </button>

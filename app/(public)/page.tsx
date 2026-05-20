@@ -1,44 +1,64 @@
 'use client'
-import { useState } from 'react'
+
 import Link from 'next/link'
-import { useSyncedMoviesFromAdmin } from '@/hooks/useSyncedMoviesFromAdmin'
-import { usePublicTeluguPicks } from '@/hooks/usePublicTeluguPicks'
+
+import Hero from '@/components/Hero'
 import MovieCard from '@/components/MovieCard'
 import TeluguPickCard from '@/components/TeluguPickCard'
-import type { Movie } from '@/lib/types'
-import { getMoviesByMood } from '@/lib/movie-utils'
-import { moods } from '@/data/moods'
-import Hero from '@/components/Hero'
+import MoodCinemaSection from '@/components/MoodCinemaSection'
+import HomeSkeleton from '@/components/ui/HomeSkeleton'
+import FadeInView from '@/components/motion/FadeInView'
+
 import MouseGlow from '@/components/effects/MouseGlow'
-import TiltCard from '@/components/effects/TiltCard'
 import ParallaxWrapper from '@/components/effects/ParallaxWrapper'
+
+import { useSyncedMoviesFromAdmin } from '@/hooks/useSyncedMoviesFromAdmin'
+import { usePublicTeluguPicks } from '@/hooks/usePublicTeluguPicks'
+
 import { getHomepageTrending } from '@/lib/trending'
 import { TRENDING_CONFIG } from '@/data/trending'
-import MoodCinemaSection from '@/components/MoodCinemaSection'
 
-const tickerItems = ["Netflix", "Prime Video", "Hotstar", "Telugu Cinema", "Tamil Stories", "Bollywood", "Malayalam Gems", "Weekly Releases", "Mood Discovery", "Zee5", "SonyLIV"]
+const tickerItems = [
+  'Netflix',
+  'Prime Video',
+  'Hotstar',
+  'Telugu Cinema',
+  'Tamil Stories',
+  'Bollywood',
+  'Malayalam Gems',
+  'Weekly Releases',
+  'Mood Discovery',
+  'Zee5',
+  'SonyLIV',
+]
 
 export default function HomePage() {
-  const { movies: allMovies, loading, error } = useSyncedMoviesFromAdmin()
-  const { picks: teluguPicks, loading: teluguPicksLoading } = usePublicTeluguPicks()
+  const { movies: allMovies, loading, error } =
+    useSyncedMoviesFromAdmin()
+
+  const {
+    picks: teluguPicks,
+    loading: teluguPicksLoading,
+  } = usePublicTeluguPicks()
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF7]">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#7C3AED] border-t-transparent" />
-      </div>
-    )
+    return <HomeSkeleton />
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAFAF7] p-8 text-center">
-        <div className="mb-4 text-4xl">⚠️</div>
-        <h2 className="mb-2 text-2xl font-bold text-[#111827]">Connection Error</h2>
-        <p className="text-[#4B5563]">{error}</p>
-        <button 
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0B0B0F] px-6 text-center text-white">
+        <div className="mb-4 text-5xl">⚠️</div>
+
+        <h2 className="mb-2 text-3xl font-bold">
+          Connection Error
+        </h2>
+
+        <p className="text-neutral-400">{error}</p>
+
+        <button
           onClick={() => window.location.reload()}
-          className="mt-6 rounded-full bg-[#7C3AED] px-8 py-3 font-semibold text-white transition-all hover:bg-[#6D28D9]"
+          className="btn-premium mt-8 px-8 py-3"
         >
           Retry
         </button>
@@ -46,253 +66,268 @@ export default function HomePage() {
     )
   }
 
-  // Admin-controlled sections - use flags from admin panel
-  const weeklyReleases = allMovies.filter(m => m.weekly).sort((a, b) => (a.mood_order || 999) - (b.mood_order || 999)).slice(0, 8)
-  const latestMovies = allMovies.filter(m => m.featured).slice(0, 8)
-  const trendingMovies = getHomepageTrending(allMovies, TRENDING_CONFIG.HOME_LIMIT)
+  /* =========================
+     MOVIE SECTIONS
+  ========================= */
 
+  const weeklyReleases = allMovies
+    .filter((m) => m.weekly)
+    .slice(0, 8)
+
+  const latestMovies = allMovies
+    .filter((m) => m.featured)
+    .slice(0, 8)
+
+  const trendingMovies = getHomepageTrending(
+    allMovies,
+    TRENDING_CONFIG.HOME_LIMIT
+  )
 
   return (
-    <main style={{ background: '#FAFAF7', minHeight: '100vh', position: 'relative' }}>
+    <main className="relative min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-[#0B0B0F] text-white">
       <MouseGlow />
+
+      {/* ================= HERO ================= */}
+
       <Hero />
-      {/* ── THIS WEEK'S OTT RELEASES ── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-12 bg-white">
-        <ParallaxWrapper multiplier={5} className="mb-10 sm:mb-12">
-          <div className="text-xs sm:text-sm md:text-base font-bold uppercase tracking-[0.25em] text-[#7C3AED] mb-4 sm:mb-6 font-sans relative inline-block">
-            THIS WEEK&apos;S OTT RELEASES
-            <span style={{
-              position: 'absolute',
-              bottom: '-12px',
-              left: 0,
-              right: 0,
-              height: 3,
-              background: 'linear-gradient(90deg, transparent, #7C3AED 15%, #7C3AED 85%, transparent)',
-              opacity: 0.7,
-            }} />
+
+      {/* ================= OTT RELEASES ================= */}
+
+      <section className="section-padding relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-950/15 to-transparent" />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <FadeInView>
+            <ParallaxWrapper multiplier={5}>
+              <div className="mb-6 sm:mb-10">
+                <p className="text-eyebrow mb-2 text-purple-400">THIS WEEK&apos;S OTT RELEASES</p>
+                <h2 className="section-title">
+                  Latest Movies & Shows
+                  <br />
+                  <span className="gradient-text-purple">Across All Platforms</span>
+                </h2>
+              </div>
+            </ParallaxWrapper>
+          </FadeInView>
+
+          <FadeInView delay={0.06}>
+          <div className="movie-row movie-row-peek">
+            {weeklyReleases.map((movie, i) => (
+              <MovieCard
+                key={movie.uuid}
+                movie={movie}
+                index={i}
+              />
+            ))}
           </div>
-          <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-[#111827] mt-3">
-            Latest Movies & Shows
-            <br />
-            <span className="text-[#4B5563]">Across All Platforms</span>
-          </h2>
-        </ParallaxWrapper>
+          </FadeInView>
 
-        {/* OTT Releases Grid */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8">
-          {weeklyReleases.map((movie, i) => (
-            <MovieCard key={movie.uuid} movie={movie} index={i} />
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link href="/releases?tab=week" className="bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-700 hover:to-fuchsia-600 text-white py-3.5 px-8 sm:py-4 sm:px-10 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider inline-flex items-center gap-2 shadow-md transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
-            View All Releases
-            <span className="text-sm">→</span>
-          </Link>
+          <FadeInView delay={0.1} className="mt-8 text-center sm:mt-12">
+            <Link
+              href="/releases"
+              className="btn-premium touch-target inline-flex items-center gap-2 px-6 py-3 text-xs uppercase tracking-wider active:scale-[0.98] sm:px-8 sm:py-4 sm:text-sm"
+            >
+              View All Releases
+              <span>→</span>
+            </Link>
+          </FadeInView>
         </div>
       </section>
 
-      {/* â”€â”€ LATEST MOVIES â”€â”€ */}
-      <section style={{ 
-        padding: '100px 48px', 
-        background: '#F9FAFB',
-      }}>
-        <div style={{ marginBottom: 48, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 24 }}>
-          <div>
-          <div style={{ 
-            fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', 
-            color: '#7C3AED', marginBottom: 24,
-            fontFamily: 'Inter, sans-serif',
-          }}>Latest Movies</div>
-          <h2 className="font-playfair" style={{ 
-            fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, letterSpacing: '-2px', lineHeight: 1.1,
-            color: '#111827', marginBottom: 0,
-          }}>
-            Fresh Releases
-            <br />
-            <span style={{ color: '#4B5563' }}>Handpicked for You</span>
-          </h2>
-          </div>
-          <Link href="/releases?tab=latest" style={{
-            background: 'var(--purple-gradient)',
-            color: 'white',
-            padding: '14px 28px',
-            borderRadius: 100,
-            fontSize: 13, fontWeight: 600,
-            textDecoration: 'none',
-            letterSpacing: '1px',
-            fontFamily: 'Inter, sans-serif',
-            textTransform: 'uppercase',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            boxShadow: 'var(--soft-shadow)',
-            transition: 'all 0.3s',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.transform = 'translateY(-2px)'
-            e.currentTarget.style.boxShadow = 'var(--hover-shadow)'
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = 'translateY(0)'
-            e.currentTarget.style.boxShadow = 'var(--soft-shadow)'
-          }}
-          >
-            View all new releases
-            <span style={{ fontSize: 14 }}>→</span>
-          </Link>
-        </div>
+      <section className="section-padding bg-[#111827]/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <FadeInView>
+          <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-10 sm:gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="text-eyebrow mb-2 text-purple-400">Latest Movies</p>
+              <h2 className="section-title">
+                Fresh Releases
+                <br />
+                <span className="text-neutral-400">Handpicked for You</span>
+              </h2>
+            </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8">
-          {latestMovies.map((movie, i) => (
-            <MovieCard key={movie.uuid} movie={movie} index={i} />
-          ))}
+            <Link
+              href="/releases"
+              className="btn-glass touch-target inline-flex w-fit items-center gap-2 self-start px-5 py-2.5 text-xs uppercase tracking-wider active:scale-[0.98] sm:px-7 sm:py-3 sm:text-sm"
+            >
+              View All
+              <span>→</span>
+            </Link>
+          </div>
+          </FadeInView>
+
+          <FadeInView delay={0.06}>
+          <div className="movie-row movie-row-peek">
+            {latestMovies.map((movie, i) => (
+              <MovieCard
+                key={movie.uuid}
+                movie={movie}
+                index={i}
+              />
+            ))}
+          </div>
+          </FadeInView>
         </div>
       </section>
 
-      {/* ── EDITORIAL TICKER ── */}
-      <div className="bg-gradient-to-r from-purple-600 to-fuchsia-600 py-3.5 sm:py-4 overflow-hidden shadow-sm">
+      {/* ================= TICKER ================= */}
+
+      <div className="overflow-hidden bg-gradient-to-r from-purple-700 to-fuchsia-600 py-3 sm:py-4">
         <div className="ticker-animate">
-          {[...tickerItems, ...tickerItems].map((item, i) => (
-            <span key={i} className="font-playfair text-xs sm:text-sm font-bold tracking-widest uppercase text-white px-8 inline-block white-space-nowrap">
-              {item} <span className="text-white/60 mx-3">✦</span>
-            </span>
-          ))}
+          {[...tickerItems, ...tickerItems].map(
+            (item, i) => (
+              <span
+                key={i}
+                className="px-4 text-xs font-bold uppercase tracking-[0.2em] text-white sm:px-8 sm:text-sm sm:tracking-[0.25em]"
+              >
+                {item}
+                <span className="mx-3 text-white/50">
+                  ✦
+                </span>
+              </span>
+            )
+          )}
         </div>
       </div>
 
-      {/* ── EDITORIAL STATS ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-purple-100/50">
-        {[['500+', 'Curated Films'], ['8', 'Streaming Platforms'], ['7', 'Cinematic Moods'], ['12', 'Languages']].map(([num, label]) => (
-          <div key={label} className="bg-white py-8 px-4 sm:py-12 sm:px-6 border-b-2 border-transparent transition-all duration-300 hover:border-purple-600 hover:bg-neutral-50/50 relative overflow-hidden text-center shadow-sm">
-            <div className="font-playfair text-3xl sm:text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-purple-600 to-fuchsia-500 bg-clip-text text-transparent mb-2 sm:mb-3">
+      {/* ================= STATS ================= */}
+
+      <section className="grid grid-cols-2 gap-px bg-purple-500/10 md:grid-cols-4">
+        {[
+          ['500+', 'Curated Films'],
+          ['8', 'Streaming Platforms'],
+          ['7', 'Cinematic Moods'],
+          ['12', 'Languages'],
+        ].map(([num, label]) => (
+          <div
+            key={label}
+            className="group relative overflow-hidden bg-[#111827] py-6 text-center transition-all hover:bg-[#151b2d] sm:py-10"
+          >
+            <div className="font-playfair mb-2 text-2xl font-black text-white sm:mb-3 sm:text-4xl md:text-5xl">
               {num}
             </div>
-            <div className="text-[10px] sm:text-xs text-neutral-500 uppercase tracking-widest font-semibold font-sans">
+
+            <div className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 sm:text-xs sm:tracking-[0.25em]">
               {label}
             </div>
           </div>
         ))}
-      </div>
+      </section>
 
-      {/* ── MOOD CINEMA SECTION ── */}
+      {/* ================= MOOD SECTION ================= */}
+
       <MoodCinemaSection />
 
-      {/* ── TRENDING MOVIES ── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-12 bg-white">
-        <div className="mb-10 sm:mb-12">
-          <div className="text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#7C3AED] mb-3 font-sans">
-            {TRENDING_CONFIG.LABEL}
-          </div>
-          <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-[#111827]">
-            {TRENDING_CONFIG.SECTION_TITLE}
-          </h2>
-        </div>
+      {/* ================= TRENDING ================= */}
 
-        {/* Trending Movies Grid */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8">
-          {trendingMovies.map((movie, i) => (
-            <MovieCard key={movie.uuid} movie={movie} index={i} />
-          ))}
-          {trendingMovies.length === 0 && (
-            <div className="col-span-full text-center py-10 text-neutral-400 text-sm font-sans">
-              {TRENDING_CONFIG.EMPTY_FALLBACK}
-            </div>
-          )}
-        </div>
+      <section className="section-padding">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <FadeInView>
+            <p className="text-eyebrow mb-2 text-purple-400">{TRENDING_CONFIG.LABEL}</p>
+            <h2 className="section-title mb-6 sm:mb-10">{TRENDING_CONFIG.SECTION_TITLE}</h2>
+          </FadeInView>
 
-        <div className="text-center mt-12">
-          <Link href="/trending" className="bg-transparent text-[#7C3AED] border border-[#7C3AED] hover:bg-purple-50/50 py-3.5 px-8 sm:py-4 sm:px-10 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
-            View All Trending
-            <span className="text-sm">→</span>
-          </Link>
-        </div>
-      </section>
-
-      {/* ── TELUGU PICKS ── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-12 bg-neutral-50/50">
-        <div className="mb-10 sm:mb-12">
-          <div className="text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#FF6B6B] mb-3 font-sans">
-            Telugu Picks
-          </div>
-          <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight text-[#111827]">
-            Curated Tollywood
-            <br />
-            <span className="text-[#4B5563]">Masterpieces</span>
-          </h2>
-        </div>
-
-        {/* Telugu Picks Grid */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-6 lg:gap-8">
-          {teluguPicksLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="shimmer rounded-[20px] border border-gray-200 bg-gray-100"
-                style={{ height: 420 }}
+          <FadeInView delay={0.06}>
+          <div className="movie-row movie-row-peek">
+            {trendingMovies.map((movie, i) => (
+              <MovieCard
+                key={movie.uuid}
+                movie={movie}
+                index={i}
               />
-            ))
-          ) : teluguPicks.length > 0 ? (
-            teluguPicks.map((pick) => (
-              <TeluguPickCard key={pick.id} pick={pick} />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 text-neutral-500 text-sm font-sans">
-              No Telugu Picks added yet.
-            </div>
-          )}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link href="/telugu" className="bg-transparent text-[#FF6B6B] border border-[#FF6B6B] hover:bg-red-50/40 py-3.5 px-8 sm:py-4 sm:px-10 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
-            View All Telugu
-            <span className="text-sm">→</span>
-          </Link>
-        </div>
-      </section>
-
-      {/* ── EDITORIAL FOOTER ── */}
-      <footer className="py-16 px-4 sm:px-8 lg:px-12 border-t border-purple-100 bg-[#F3F4F6]">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-14">
-          <div className="max-w-xs">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-fuchsia-500 rounded-xl flex items-center justify-center text-lg font-black text-white shadow-sm relative overflow-hidden">
-                <span className="relative z-10">🎬</span>
-              </div>
-              <span className="font-playfair text-xl sm:text-2xl font-black text-[#111827] tracking-tight leading-none block">
-                Absolute<span className="gradient-text-purple"> Cinema</span>
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed font-sans">
-              Premium cinematic discovery platform.
-              <br />
-              Every mood. Every story. Every emotion.
-            </p>
-          </div>
-          <div className="flex gap-12 sm:gap-16">
-            {([
-              ['Discover', [['/', 'Home'], ['/releases', 'New Releases'], ['/mood', 'Mood Cinema'], ['/search', 'Search']] as [string, string][]],
-              ['Languages', [['/','Telugu'], ['/','Tamil'], ['/','Hindi'], ['/','Malayalam']] as [string, string][]],
-            ] as [string, [string, string][]][]).map(([title, links]: [string, [string, string][]]) => (
-              <div key={title}>
-                <h4 className="font-playfair text-xs sm:text-sm font-bold tracking-widest uppercase mb-6 text-[#7C3AED]">{title}</h4>
-                {links.map(([href, label]: [string, string]) => (
-                  <Link key={label} href={href} className="block text-xs sm:text-sm text-[#4B5563] hover:text-[#7C3AED] hover:translate-x-1 transition-all duration-200 mb-3.5 font-sans">
-                    {label}
-                  </Link>
-                ))}
-              </div>
             ))}
           </div>
-        </div>
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-10 border-t border-purple-100 text-[11px] sm:text-xs text-[#4B5563] font-sans">
-          <span>© 2026 Absolute Cinema. Premium cinematic discovery.</span>
-          <div className="flex gap-4 sm:gap-6 items-center">
-            <Link href="/admin" className="text-[#4B5563] hover:text-[#7C3AED] transition-colors">
-              Admin
+          </FadeInView>
+
+          <FadeInView delay={0.1} className="mt-8 text-center sm:mt-12">
+            <Link
+              href="/trending"
+              className="btn-glass touch-target inline-flex items-center gap-2 px-6 py-3 text-xs uppercase tracking-wider active:scale-[0.98] sm:px-8 sm:py-4 sm:text-sm"
+            >
+              View Trending
+              <span>→</span>
             </Link>
-            <span className="text-[#7C3AED] font-semibold">Cinema for Every Emotion</span>
+          </FadeInView>
+        </div>
+      </section>
+
+      <section className="section-padding bg-[#111827]/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <FadeInView>
+            <p className="text-eyebrow mb-2 text-red-400">Telugu Picks</p>
+            <h2 className="section-title mb-6 sm:mb-10">
+              Curated Tollywood
+              <br />
+              <span className="text-neutral-400">Masterpieces</span>
+            </h2>
+          </FadeInView>
+
+          <FadeInView delay={0.06}>
+          <div className="movie-row movie-row-peek">
+            {teluguPicksLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton-card" />
+              ))
+            ) : teluguPicks.length > 0 ? (
+              teluguPicks.map((pick) => (
+                <TeluguPickCard
+                  key={pick.id}
+                  pick={pick}
+                />
+              ))
+            ) : (
+              <div className="col-span-full py-12 text-center text-neutral-500">
+                No Telugu Picks added yet.
+              </div>
+            )}
+          </div>
+          </FadeInView>
+
+          <FadeInView delay={0.1} className="mt-8 text-center sm:mt-12">
+            <Link
+              href="/search?q=Telugu"
+              className="btn-glass touch-target inline-flex items-center gap-2 px-6 py-3 text-xs uppercase tracking-wider active:scale-[0.98] sm:px-8 sm:py-4 sm:text-sm"
+            >
+              Explore Telugu
+              <span>→</span>
+            </Link>
+          </FadeInView>
+        </div>
+      </section>
+
+      {/* Home footer — PublicChrome hides global footer on home */}
+      <footer className="border-t border-white/5 bg-[#0B0B0F] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-8 sm:gap-10 md:flex-row md:justify-between">
+            <div className="max-w-sm">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-500 text-lg font-black text-white">
+                  🎬
+                </div>
+                <span className="font-playfair text-xl font-black sm:text-2xl">
+                  Absolute
+                  <span className="gradient-text-purple"> Cinema</span>
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-neutral-400">
+                Premium cinematic discovery platform for every mood, every story, every emotion.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-10 sm:gap-16">
+              <div>
+                <h4 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-purple-400">Discover</h4>
+                <div className="flex flex-col gap-2.5">
+                  <Link href="/releases" className="text-sm text-neutral-400 transition hover:text-white">Releases</Link>
+                  <Link href="/mood" className="text-sm text-neutral-400 transition hover:text-white">Mood Cinema</Link>
+                  <Link href="/trending" className="text-sm text-neutral-400 transition hover:text-white">Trending</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-6 text-center text-xs text-neutral-500 sm:mt-10 sm:flex-row sm:text-left">
+            <span>© 2026 Absolute Cinema. Premium cinematic discovery.</span>
+            <span className="text-purple-400">Cinema for Every Emotion</span>
           </div>
         </div>
       </footer>
